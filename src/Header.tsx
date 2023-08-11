@@ -15,7 +15,7 @@ const Header: FC<HeaderProps> = ({ title }) => {
         style={{ animation: "spin 2s linear infinite" }}
       />
 
-      <h1 className="text-xl text-center">{title}</h1>
+      <h1 className="text-xl text-center font-bold text-gray-800">{title}</h1>
     </div>
   );
 };
