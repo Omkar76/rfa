@@ -1,8 +1,8 @@
-import { FC } from "react";
+import { FC, HTMLInputTypeAttribute } from "react";
 
 interface FormFieldProps {
   label: string;
-  type?: string;
+  type?: HTMLInputTypeAttribute;
 }
 
 export const FormField: FC<FormFieldProps> = ({ label, type }) => {
