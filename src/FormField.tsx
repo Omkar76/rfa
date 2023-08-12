@@ -1,15 +1,19 @@
 import { FC, HTMLInputTypeAttribute } from "react";
 
-interface FormFieldProps {
+export interface FormFieldProps {
   label: string;
   type?: HTMLInputTypeAttribute;
-  onRemoveClicked: () => void;
+  value?: any;
+  removField: () => void;
+  updateField: (value: any) => void;
 }
 
 export const FormField: FC<FormFieldProps> = ({
   label,
   type,
-  onRemoveClicked,
+  value,
+  removField,
+  updateField,
 }) => {
   return (
     <>
@@ -17,12 +21,14 @@ export const FormField: FC<FormFieldProps> = ({
       <div className="flex items-center gap-2">
         <input
           required
+          value={value}
+          onChange={(e) => updateField(e.target.value)}
           type={type}
           className="focus:border-blue-300 border-2 border-gray-300 p-2 w-full my-1 bg-slate-100 outline-none rounded-sm"
         />
 
         <svg
-          onClick={onRemoveClicked}
+          onClick={removField}
           role="button"
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"

@@ -12,11 +12,11 @@ const onSubmit: FormEventHandler<HTMLFormElement> = (event) => {
 };
 
 const defaultFields = [
-  { id: 1, label: "First Name" },
-  { id: 2, label: "Last Name" },
-  { id: 3, label: "Email", type: "email" },
-  { id: 4, label: "Date of Birth", type: "date" },
-  { id: 5, label: "Phone number", type: "tel" },
+  { id: 1, label: "First Name", value: "" },
+  { id: 2, label: "Last Name", value: "" },
+  { id: 3, label: "Email", type: "email", value: "" },
+  { id: 4, label: "Date of Birth", type: "date", value: "" },
+  { id: 5, label: "Phone number", type: "tel", value: "" },
 ];
 
 export const Form: FC<FormProps> = ({ closeForm }) => {
@@ -30,6 +30,7 @@ export const Form: FC<FormProps> = ({ closeForm }) => {
         id: +new Date(),
         label: newFieldLabel,
         type: "text",
+        value: "",
       },
     ]);
 
@@ -40,6 +41,29 @@ export const Form: FC<FormProps> = ({ closeForm }) => {
     setFields(fields.filter((field) => field.id !== id));
   };
 
+  const updateField = (id: number, value: any) => {
+    setFields(
+      fields.map((field) => {
+        if (field.id !== id) {
+          return field;
+        }
+
+        return {
+          ...field,
+          value,
+        };
+      })
+    );
+  };
+
+  const clearFields = () => {
+    setFields(
+      fields.map((field) => {
+        return { ...field, value: "" };
+      })
+    );
+  };
+
   return (
     <form onSubmit={onSubmit}>
       {fields.map((field) => (
@@ -47,7 +71,9 @@ export const Form: FC<FormProps> = ({ closeForm }) => {
           key={field.id}
           label={field.label}
           type={field.type}
-          onRemoveClicked={() => removeField(field.id)}
+          value={field.value}
+          removField={removeField.bind(null, field.id)}
+          updateField={updateField.bind(null, field.id)}
         />
       ))}
 
@@ -83,9 +109,17 @@ export const Form: FC<FormProps> = ({ closeForm }) => {
         >
           Submit
         </button>
-
         <button
-          className="p-2 bg-gray-500 hover:bg-gray-600 text-white rounded-md"
+          className="p-2 bg-white hover:bg-blue-60 text-black rounded-md border-2 border-black"
+          onClick={(e) => {
+            e.preventDefault();
+            clearFields();
+          }}
+        >
+          Clear Fields
+        </button>
+        <button
+          className="p-2 bg-gray-500 hover:bg-gray-600 text-white rounded-md ml-auto"
           onClick={closeForm}
         >
           Close Form
