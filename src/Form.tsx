@@ -5,12 +5,6 @@ interface FormProps {
   closeForm: () => void;
 }
 
-const onSubmit: FormEventHandler<HTMLFormElement> = (event) => {
-  event.preventDefault();
-  (event.target as HTMLFormElement).reset();
-  alert("Data submitted.");
-};
-
 const defaultFields = [
   { id: 1, label: "First Name", value: "" },
   { id: 2, label: "Last Name", value: "" },
@@ -22,6 +16,11 @@ const defaultFields = [
 export const Form: FC<FormProps> = ({ closeForm }) => {
   const [fields, setFields] = useState(defaultFields);
   const [newFieldLabel, setNewFieldLabel] = useState("");
+
+  const onSubmit: FormEventHandler<HTMLFormElement> = (event) => {
+    event.preventDefault();
+    alert(JSON.stringify(fields, null, 2));
+  };
 
   const addField = () => {
     setFields([
