@@ -1,11 +1,17 @@
-import { FC, FormEventHandler, useState } from "react";
+import {
+  FC,
+  FormEventHandler,
+  HTMLInputTypeAttribute,
+  useEffect,
+  useState,
+} from "react";
 import { FormField } from "./FormField";
 
 interface FormProps {
   closeForm: () => void;
 }
 
-const defaultFields = [
+const inititalFormFields: FormFieldData[] = [
   { id: 1, label: "First Name", value: "" },
   { id: 2, label: "Last Name", value: "" },
   { id: 3, label: "Email", type: "email", value: "" },
@@ -13,14 +19,25 @@ const defaultFields = [
   { id: 5, label: "Phone number", type: "tel", value: "" },
 ];
 
-export const Form: FC<FormProps> = ({ closeForm }) => {
-  const [fields, setFields] = useState(defaultFields);
-  const [newFieldLabel, setNewFieldLabel] = useState("");
+interface FormFieldData {
+  id: number;
+  label: string;
+  type?: HTMLInputTypeAttribute;
+  value: string;
+}
 
-  const onSubmit: FormEventHandler<HTMLFormElement> = (event) => {
-    event.preventDefault();
-    alert(JSON.stringify(fields, null, 2));
-  };
+function saveFormData(formData: FormFieldData[]) {
+  localStorage.setItem("formData", JSON.stringify(formData));
+}
+
+function initialState(): FormFieldData[] {
+  const formDataJSON = localStorage.getItem("formData");
+  return formDataJSON ? JSON.parse(formDataJSON) : inititalFormFields;
+}
+
+export const Form: FC<FormProps> = ({ closeForm }) => {
+  const [fields, setFields] = useState(initialState());
+  const [newFieldLabel, setNewFieldLabel] = useState("");
 
   const addField = () => {
     setFields([
@@ -64,7 +81,7 @@ export const Form: FC<FormProps> = ({ closeForm }) => {
   };
 
   return (
-    <form onSubmit={onSubmit}>
+    <form>
       {fields.map((field) => (
         <FormField
           key={field.id}
@@ -104,9 +121,9 @@ export const Form: FC<FormProps> = ({ closeForm }) => {
       <div className="flex flex-row gap-2 justify-start mt-4">
         <button
           className="p-2 bg-blue-500 hover:bg-blue-60 text-white rounded-md"
-          type="submit"
+          onClick={() => saveFormData(fields)}
         >
-          Submit
+          Save
         </button>
         <button
           className="p-2 bg-white hover:bg-blue-60 text-black rounded-md border-2 border-black"
