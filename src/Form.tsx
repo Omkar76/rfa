@@ -1,6 +1,5 @@
 import {
   FC,
-  FormEventHandler,
   HTMLInputTypeAttribute,
   useEffect,
   useState,
@@ -28,6 +27,7 @@ interface FormFieldData {
 
 function saveFormData(formData: FormFieldData[]) {
   localStorage.setItem("formData", JSON.stringify(formData));
+  console.log('State saved to localStorage')
 }
 
 function initialState(): FormFieldData[] {
@@ -38,6 +38,25 @@ function initialState(): FormFieldData[] {
 export const Form: FC<FormProps> = ({ closeForm }) => {
   const [fields, setFields] = useState(initialState());
   const [newFieldLabel, setNewFieldLabel] = useState("");
+
+  useEffect(()=>{
+    const oldTitle = document.title;
+    document.title = "Form Editor";
+
+    return ()=>{
+      document.title = oldTitle;
+    }
+  }, []);
+
+  useEffect(()=>{
+    let timeout = setTimeout(()=>{
+      saveFormData(fields);
+    }, 500);
+
+    return ()=>{
+      clearTimeout(timeout);
+    }
+  }, [fields]);
 
   const addField = () => {
     setFields([
@@ -121,7 +140,9 @@ export const Form: FC<FormProps> = ({ closeForm }) => {
       <div className="flex flex-row gap-2 justify-start mt-4">
         <button
           className="p-2 bg-blue-500 hover:bg-blue-60 text-white rounded-md"
-          onClick={() => saveFormData(fields)}
+          onClick={(e) => {
+            e.preventDefault();
+            saveFormData(fields);}}
         >
           Save
         </button>
