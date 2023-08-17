@@ -1,10 +1,4 @@
-import {
-  FC,
-  HTMLInputTypeAttribute,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { FC, HTMLInputTypeAttribute, useEffect, useRef, useState } from "react";
 import { FormField } from "./FormField";
 
 const LOCAL_FORMS_KEY = "LOCAL_FORMS_KEY_V1";
@@ -21,58 +15,58 @@ interface FormFieldData {
 }
 
 interface FormData {
-  id : number
-  title: string
-  fields: FormFieldData[]
+  id: number;
+  title: string;
+  fields: FormFieldData[];
 }
 
-const initialFormFields : FormFieldData[] = [
-    { id: 1, label: "First Name", value: "" },
-    { id: 2, label: "Last Name", value: "" },
-    { id: 3, label: "Email", type: "email", value: "" },
-    { id: 4, label: "Date of Birth", type: "date", value: "" },
-    { id: 5, label: "Phone number", type: "tel", value: "" },
-  ]
-
+const initialFormFields: FormFieldData[] = [
+  { id: 1, label: "First Name", value: "" },
+  { id: 2, label: "Last Name", value: "" },
+  { id: 3, label: "Email", type: "email", value: "" },
+  { id: 4, label: "Date of Birth", type: "date", value: "" },
+  { id: 5, label: "Phone number", type: "tel", value: "" },
+];
 
 function getLocalForms(): FormData[] {
   const savedFormsJSON = localStorage.getItem(LOCAL_FORMS_KEY);
-  return savedFormsJSON ? JSON.parse(savedFormsJSON) : []
+  return savedFormsJSON ? JSON.parse(savedFormsJSON) : [];
 }
 
-function saveLocalForms(forms : FormData[]){
+function saveLocalForms(forms: FormData[]) {
   localStorage.setItem(LOCAL_FORMS_KEY, JSON.stringify(forms));
 }
 
 function initialState(): FormData {
   const localForms = getLocalForms();
-  
-  if(localForms.length > 0){
+
+  if (localForms.length > 0) {
     return localForms[0];
   }
 
   const newForm = {
-    id : new Date().getTime(),
-    title : "Untitled Form",
-    fields : initialFormFields
+    id: new Date().getTime(),
+    title: "Untitled Form",
+    fields: initialFormFields,
   };
 
   saveLocalForms([newForm]);
-  return newForm
+  return newForm;
 }
-
 
 function saveFormData(currentFormState: FormData) {
   const localForms = getLocalForms();
-  const updatedLocalForms = localForms.map(form=>form.id === currentFormState.id ? currentFormState : form);
+  const updatedLocalForms = localForms.map((form) =>
+    form.id === currentFormState.id ? currentFormState : form
+  );
 
   saveLocalForms(updatedLocalForms);
-  console.log('State saved to localStorage')
+  console.log("State saved to localStorage");
 }
 
 export const Form: FC<FormProps> = ({ closeForm }) => {
-  const [formData, setFormData] = useState(()=>initialState());
-  const [newFieldLabel, setNewFieldLabel] = useState(""); 
+  const [formData, setFormData] = useState(() => initialState());
+  const [newFieldLabel, setNewFieldLabel] = useState("");
   const titleRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -82,7 +76,7 @@ export const Form: FC<FormProps> = ({ closeForm }) => {
     titleRef.current?.focus();
     return () => {
       document.title = oldTitle;
-    }
+    };
   }, []);
 
   useEffect(() => {
@@ -92,7 +86,7 @@ export const Form: FC<FormProps> = ({ closeForm }) => {
 
     return () => {
       clearTimeout(timeout);
-    }
+    };
   }, [formData]);
 
   const addField = () => {
@@ -106,14 +100,17 @@ export const Form: FC<FormProps> = ({ closeForm }) => {
           type: "text",
           value: "",
         },
-      ]
+      ],
     });
 
     setNewFieldLabel("");
   };
 
   const removeField = (id: number) => {
-    setFormData({ ...formData, fields: formData.fields.filter((field) => field.id !== id) });
+    setFormData({
+      ...formData,
+      fields: formData.fields.filter((field) => field.id !== id),
+    });
   };
 
   const updateField = (id: number, value: any) => {
@@ -128,29 +125,29 @@ export const Form: FC<FormProps> = ({ closeForm }) => {
           ...field,
           value,
         };
-      })
+      }),
     });
   };
 
   const clearFields = () => {
     setFormData({
       ...formData,
-      fields : formData.fields.map((field) => {
+      fields: formData.fields.map((field) => {
         return { ...field, value: "" };
-      })
-  });
+      }),
+    });
   };
 
   return (
     <form>
-        <input
-          ref={titleRef}
-          value={formData.title}
-          onChange={(e)=>{
-            setFormData({...formData, title : e.target.value})
-          }}
-          className="focus:border-blue-300 border-2 border-gray-300 p-2 w-full my-1 bg-slate-100 outline-none rounded-sm"
-        />
+      <input
+        ref={titleRef}
+        value={formData.title}
+        onChange={(e) => {
+          setFormData({ ...formData, title: e.target.value });
+        }}
+        className="focus:border-blue-300 border-2 border-gray-300 p-2 w-full my-1 bg-slate-100 outline-none rounded-sm"
+      />
 
       {formData.fields.map((field) => (
         <FormField
