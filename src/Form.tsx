@@ -7,6 +7,8 @@ import {
 } from "react";
 import { FormField } from "./FormField";
 
+const LOCAL_FORMS_KEY = "LOCAL_FORMS_KEY_V1";
+
 interface FormProps {
   closeForm: () => void;
 }
@@ -19,33 +21,57 @@ interface FormFieldData {
 }
 
 interface FormData {
+  id : number
   title: string
   fields: FormFieldData[]
 }
 
-const initialFormData: FormData = {
-  title: "Untitled form",
-  fields: [
+const initialFormFields : FormFieldData[] = [
     { id: 1, label: "First Name", value: "" },
     { id: 2, label: "Last Name", value: "" },
     { id: 3, label: "Email", type: "email", value: "" },
     { id: 4, label: "Date of Birth", type: "date", value: "" },
     { id: 5, label: "Phone number", type: "tel", value: "" },
   ]
-};
 
-function initialState(): FormData {
-  const formDataJSON = localStorage.getItem("formData");
-  return formDataJSON ? JSON.parse(formDataJSON) : initialFormData;
+
+function getLocalForms(): FormData[] {
+  const savedFormsJSON = localStorage.getItem(LOCAL_FORMS_KEY);
+  return savedFormsJSON ? JSON.parse(savedFormsJSON) : []
 }
 
-function saveFormData(formData: FormData) {
-  localStorage.setItem("formData", JSON.stringify(formData));
+function saveLocalForms(forms : FormData[]){
+  localStorage.setItem(LOCAL_FORMS_KEY, JSON.stringify(forms));
+}
+
+function initialState(): FormData {
+  const localForms = getLocalForms();
+  
+  if(localForms.length > 0){
+    return localForms[0];
+  }
+
+  const newForm = {
+    id : new Date().getTime(),
+    title : "Untitled Form",
+    fields : initialFormFields
+  };
+
+  saveLocalForms([newForm]);
+  return newForm
+}
+
+
+function saveFormData(currentFormState: FormData) {
+  const localForms = getLocalForms();
+  const updatedLocalForms = localForms.map(form=>form.id === currentFormState.id ? currentFormState : form);
+
+  saveLocalForms(updatedLocalForms);
   console.log('State saved to localStorage')
 }
 
 export const Form: FC<FormProps> = ({ closeForm }) => {
-  const [formData, setFormData] = useState(initialState());
+  const [formData, setFormData] = useState(()=>initialState());
   const [newFieldLabel, setNewFieldLabel] = useState(""); 
   const titleRef = useRef<HTMLInputElement>(null);
 
