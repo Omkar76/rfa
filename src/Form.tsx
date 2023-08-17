@@ -2,6 +2,7 @@ import {
   FC,
   HTMLInputTypeAttribute,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import { FormField } from "./FormField";
@@ -10,14 +11,6 @@ interface FormProps {
   closeForm: () => void;
 }
 
-const inititalFormFields: FormFieldData[] = [
-  { id: 1, label: "First Name", value: "" },
-  { id: 2, label: "Last Name", value: "" },
-  { id: 3, label: "Email", type: "email", value: "" },
-  { id: 4, label: "Date of Birth", type: "date", value: "" },
-  { id: 5, label: "Phone number", type: "tel", value: "" },
-];
-
 interface FormFieldData {
   id: number;
   label: string;
@@ -25,60 +18,82 @@ interface FormFieldData {
   value: string;
 }
 
-function saveFormData(formData: FormFieldData[]) {
+interface FormData {
+  title: string
+  fields: FormFieldData[]
+}
+
+const initialFormData: FormData = {
+  title: "Untitled form",
+  fields: [
+    { id: 1, label: "First Name", value: "" },
+    { id: 2, label: "Last Name", value: "" },
+    { id: 3, label: "Email", type: "email", value: "" },
+    { id: 4, label: "Date of Birth", type: "date", value: "" },
+    { id: 5, label: "Phone number", type: "tel", value: "" },
+  ]
+};
+
+function initialState(): FormData {
+  const formDataJSON = localStorage.getItem("formData");
+  return formDataJSON ? JSON.parse(formDataJSON) : initialFormData;
+}
+
+function saveFormData(formData: FormData) {
   localStorage.setItem("formData", JSON.stringify(formData));
   console.log('State saved to localStorage')
 }
 
-function initialState(): FormFieldData[] {
-  const formDataJSON = localStorage.getItem("formData");
-  return formDataJSON ? JSON.parse(formDataJSON) : inititalFormFields;
-}
-
 export const Form: FC<FormProps> = ({ closeForm }) => {
-  const [fields, setFields] = useState(initialState());
-  const [newFieldLabel, setNewFieldLabel] = useState("");
+  const [formData, setFormData] = useState(initialState());
+  const [newFieldLabel, setNewFieldLabel] = useState(""); 
+  const titleRef = useRef<HTMLInputElement>(null);
 
-  useEffect(()=>{
+  useEffect(() => {
     const oldTitle = document.title;
     document.title = "Form Editor";
 
-    return ()=>{
+    titleRef.current?.focus();
+    return () => {
       document.title = oldTitle;
     }
   }, []);
 
-  useEffect(()=>{
-    let timeout = setTimeout(()=>{
-      saveFormData(fields);
+  useEffect(() => {
+    let timeout = setTimeout(() => {
+      saveFormData(formData);
     }, 500);
 
-    return ()=>{
+    return () => {
       clearTimeout(timeout);
     }
-  }, [fields]);
+  }, [formData]);
 
   const addField = () => {
-    setFields([
-      ...fields,
-      {
-        id: +new Date(),
-        label: newFieldLabel,
-        type: "text",
-        value: "",
-      },
-    ]);
+    setFormData({
+      ...formData,
+      fields: [
+        ...formData.fields,
+        {
+          id: +new Date(),
+          label: newFieldLabel,
+          type: "text",
+          value: "",
+        },
+      ]
+    });
 
     setNewFieldLabel("");
   };
 
   const removeField = (id: number) => {
-    setFields(fields.filter((field) => field.id !== id));
+    setFormData({ ...formData, fields: formData.fields.filter((field) => field.id !== id) });
   };
 
   const updateField = (id: number, value: any) => {
-    setFields(
-      fields.map((field) => {
+    setFormData({
+      ...formData,
+      fields: formData.fields.map((field) => {
         if (field.id !== id) {
           return field;
         }
@@ -88,20 +103,30 @@ export const Form: FC<FormProps> = ({ closeForm }) => {
           value,
         };
       })
-    );
+    });
   };
 
   const clearFields = () => {
-    setFields(
-      fields.map((field) => {
+    setFormData({
+      ...formData,
+      fields : formData.fields.map((field) => {
         return { ...field, value: "" };
       })
-    );
+  });
   };
 
   return (
     <form>
-      {fields.map((field) => (
+        <input
+          ref={titleRef}
+          value={formData.title}
+          onChange={(e)=>{
+            setFormData({...formData, title : e.target.value})
+          }}
+          className="focus:border-blue-300 border-2 border-gray-300 p-2 w-full my-1 bg-slate-100 outline-none rounded-sm"
+        />
+
+      {formData.fields.map((field) => (
         <FormField
           key={field.id}
           label={field.label}
@@ -142,7 +167,8 @@ export const Form: FC<FormProps> = ({ closeForm }) => {
           className="p-2 bg-blue-500 hover:bg-blue-60 text-white rounded-md"
           onClick={(e) => {
             e.preventDefault();
-            saveFormData(fields);}}
+            saveFormData(formData);
+          }}
         >
           Save
         </button>
