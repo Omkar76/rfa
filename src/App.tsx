@@ -19,8 +19,8 @@ function App() {
 
   return (
     <AppContainer>
-      <div className="p-4 mx-auto bg-white shadow-lg rounded-xl max-w-md">
-        <Header title="Welcome to lesson 5 of #react-typescript with #tailwind" />
+      <div className="flex flex-col items-center p-4 mx-auto bg-white shadow-lg rounded-xl w-[500px] max-w-[90vw]">
+        <Header title="React + Tailwind" />
         {page === Page.HOME && <Home {...{ openForm }} />}
         {page === Page.FORM && <Form {...{ closeForm }} />}
       </div>
