@@ -50,7 +50,7 @@ function initialState(): FormData {
     fields: initialFormFields,
   };
 
-  saveLocalForms([newForm]);
+  saveLocalForms([...localForms, newForm]);
   return newForm;
 }
 
