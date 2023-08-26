@@ -36,13 +36,13 @@ export const FormField: FC<FormFieldProps> = ({
 }) => {
   return (
     <>
-      <label>{fieldData.label}</label>
+      {/* <label>{fieldData.label}</label> */}
       <div className="flex items-center gap-2">
         <input
           required
-          value={fieldData.value}
-          onChange={(e) => setField({ ...fieldData, value: e.target.value })}
-          type={fieldData.type}
+          value={fieldData.label}
+          onChange={(e) => setField({ ...fieldData, label: e.target.value })}
+          // type={fieldData.type}
           className="focus:border-blue-300 border-2 border-gray-300 p-2 w-full my-1 bg-slate-100 outline-none rounded-sm"
         />
 
