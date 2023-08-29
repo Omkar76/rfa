@@ -3,6 +3,9 @@ import { useNavigate } from "raviger";
 import { getFormById, getDefaultFormData, saveFormData } from "../utils/forms";
 import { FormData, FormFieldData } from "../types/forms";
 import { Carousel } from "../Carousel";
+import { PreviewTextField } from "../previews/TextFieldPreview";
+import { PreviewMultiSelect } from "../previews/MultiSelectFieldPreview";
+import { PreviewRadio } from "../previews/RadioFieldPreview";
 
 export interface FormProps {
   formID: number;
@@ -40,6 +43,37 @@ export const FormPreview: FC<FormProps> = ({ formID }) => {
     });
   };
 
+  const renderField = (field: FormFieldData) => {
+    switch (field.kind) {
+      case "text":
+        return (
+          <PreviewTextField
+            field={field}
+            setField={setField.bind(null, field.id)}
+          />
+        );
+
+      case "multiselect":
+        return (
+          <PreviewMultiSelect
+            field={field}
+            setField={setField.bind(null, field.id)}
+          />
+        );
+
+      case "radio":
+        return (
+          <PreviewRadio
+            field={field}
+            setField={setField.bind(null, field.id)}
+          />
+        );
+
+      default:
+        <h1>Unsupported field type</h1>;
+    }
+  };
+
   const navigate = useNavigate();
   return (
     <div className="w-full">
@@ -51,23 +85,7 @@ export const FormPreview: FC<FormProps> = ({ formID }) => {
       >
         <h2 className="text-2xl text-center underline">{formData.title}</h2>
         <Carousel>
-          {formData.fields.map((field) => (
-            <div className="flex items-center gap-2">
-              <label>
-                {" "}
-                {field.label}
-                <input
-                  required
-                  value={field.value}
-                  onChange={(e) =>
-                    setField(field.id, { ...field, value: e.target.value })
-                  }
-                  type={field.type}
-                  className="focus:border-blue-300 border-2 border-gray-300 p-2 w-full my-1 bg-slate-100 outline-none rounded-sm"
-                />
-              </label>
-            </div>
-          ))}
+          {formData.fields.map((field) => renderField(field))}
         </Carousel>
       </form>
     </div>

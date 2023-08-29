@@ -1,8 +1,15 @@
 import { FC, useEffect, useRef, useState } from "react";
-import { FormField, HTMLInputTypeAttributeValues } from "../FormField";
+import { FormField } from "../inputs/FormField";
 import { Link } from "raviger";
 import { getFormById, getDefaultFormData, saveFormData } from "../utils/forms";
-import { FormData, FormFieldData } from "../types/forms";
+import {
+  FormData,
+  FormFieldData,
+  HTMLInputTypeAttributeValues,
+  fieldType,
+} from "../types/forms";
+import { MultiSelectField } from "../inputs/MultiSelectFormField";
+import { RadioField } from "../inputs/RadioFormField";
 
 export interface FormProps {
   formID: number;
@@ -41,18 +48,55 @@ export const Form: FC<FormProps> = ({ formID }) => {
   }, [formData]);
 
   const addField = () => {
-    setFormData({
-      ...formData,
-      fields: [
-        ...formData.fields,
-        {
-          id: +new Date(),
-          label: newFieldLabel,
-          type: newFieldType,
-          value: "",
-        },
-      ],
-    });
+    switch (newFieldType) {
+      case "multiselect":
+        setFormData({
+          ...formData,
+          fields: [
+            ...formData.fields,
+            {
+              kind: "multiselect",
+              options: [],
+              id: +new Date(),
+              label: newFieldLabel,
+              value: [],
+            },
+          ],
+        });
+
+        break;
+
+      case "radio":
+        setFormData({
+          ...formData,
+          fields: [
+            ...formData.fields,
+            {
+              kind: "radio",
+              options: [],
+              id: +new Date(),
+              label: newFieldLabel,
+              value: "",
+            },
+          ],
+        });
+        break;
+
+      default:
+        setFormData({
+          ...formData,
+          fields: [
+            ...formData.fields,
+            {
+              kind: "text",
+              id: +new Date(),
+              label: newFieldLabel,
+              type: newFieldType,
+              value: "",
+            },
+          ],
+        });
+    }
 
     setNewFieldLabel("");
     setNewFieldType("text");
@@ -82,11 +126,69 @@ export const Form: FC<FormProps> = ({ formID }) => {
     setFormData({
       ...formData,
       fields: formData.fields.map((field) => {
-        return { ...field, value: "" };
+        switch (field.kind) {
+          case "multiselect":
+            return { ...field, value: [] };
+          default:
+            return { ...field, value: "" };
+        }
       }),
     });
   };
 
+  const renderField = (field: FormFieldData) => {
+    switch (field.kind) {
+      case "text":
+        return (
+          <FormField
+            key={field.id}
+            fieldData={field}
+            setField={setField.bind(null, field.id)}
+            removField={removeField.bind(null, field.id)}
+          />
+        );
+      case "multiselect":
+        return (
+          <MultiSelectField
+            key={field.id}
+            fieldData={field}
+            setField={setField.bind(null, field.id)}
+          />
+        );
+
+      case "radio":
+        return (
+          <RadioField
+            key={field.id}
+            fieldData={field}
+            setField={setField.bind(null, field.id)}
+          />
+        );
+
+      default:
+        return <></>;
+    }
+  };
+
+  const setFieldType = (field: FormFieldData, type: fieldType) => {
+    switch (type) {
+      case "multiselect":
+        setField(field.id, {
+          ...field,
+          kind: "multiselect",
+          options: [],
+          value: [],
+        });
+        break;
+
+      case "radio":
+        setField(field.id, { ...field, kind: "radio", options: [], value: "" });
+        break;
+      default:
+        setField(field.id, { ...field, kind: "text", type: type, value: "" });
+        break;
+    }
+  };
   return (
     <div className="w-full">
       <form>
@@ -100,12 +202,35 @@ export const Form: FC<FormProps> = ({ formID }) => {
         />
 
         {formData.fields.map((field) => (
-          <FormField
-            key={field.id}
-            fieldData={field}
-            setField={setField.bind(null, field.id)}
-            removField={removeField.bind(null, field.id)}
-          />
+          <div className="flex items-center gap-2">
+            {renderField(field)}
+            <select
+              className="p-3"
+              onChange={(e) => {
+                setFieldType(field, e.target.value as fieldType);
+              }}
+            >
+              {HTMLInputTypeAttributeValues.map((type) => (
+                <option value={type}>{type.toUpperCase()}</option>
+              ))}
+            </select>
+
+            <svg
+              onClick={() => removeField(field.id)}
+              role="button"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="w-8 h-8 fill-red-600"
+            >
+              <title>Click to remove "{field.label}" field</title>
+              <path
+                fillRule="evenodd"
+                d="M16.5 4.478v.227a48.816 48.816 0 013.878.512.75.75 0 11-.256 1.478l-.209-.035-1.005 13.07a3 3 0 01-2.991 2.77H8.084a3 3 0 01-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 01-.256-1.478A48.567 48.567 0 017.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 013.369 0c1.603.051 2.815 1.387 2.815 2.951zm-6.136-1.452a51.196 51.196 0 013.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 00-6 0v-.113c0-.794.609-1.428 1.364-1.452zm-.355 5.945a.75.75 0 10-1.5.058l.347 9a.75.75 0 101.499-.058l-.346-9zm5.48.058a.75.75 0 10-1.498-.058l-.347 9a.75.75 0 001.5.058l.345-9z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </div>
         ))}
 
         <div className="flex items-center gap-2 border-y-2 py-2 mt-2">
