@@ -260,7 +260,7 @@ export const Form: FC<FormProps> = ({ formID }) => {
             }}
           >
             {HTMLInputTypeAttributeValues.map((type) => (
-              <option value={type}>{type.toUpperCase()}</option>
+              <option key={type} value={type}>{type.toUpperCase()}</option>
             ))}
           </select>
           <svg
