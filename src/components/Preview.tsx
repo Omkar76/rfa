@@ -52,7 +52,7 @@ export const FormPreview: FC<FormProps> = ({ formID }) => {
         <h2 className="text-2xl text-center underline">{formData.title}</h2>
         <Carousel>
           {formData.fields.map((field) => (
-            <div className="flex items-center gap-2">
+            <div key={field.id} className="flex items-center gap-2">
               <label>
                 {" "}
                 {field.label}
