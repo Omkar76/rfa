@@ -41,6 +41,11 @@ export const FormPreview: FC<FormProps> = ({ formID }) => {
   };
 
   const navigate = useNavigate();
+
+  if(formData.fields.length === 0){
+    return <p className="text-5xl">Empty Form</p>
+  }
+
   return (
     <div className="w-full">
       <form
