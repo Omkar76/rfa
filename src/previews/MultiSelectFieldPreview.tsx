@@ -35,9 +35,9 @@ export const PreviewMultiSelect: FC<MultiSelectFieldPreviewProps> = ({
 
       {showOptions && (
         <div className="flex flex-col border p-2">
-          {field.options.map((option) => {
+          {field.options.map((option, index) => {
             return (
-              <label>
+              <label key={index}>
                 <input
                   name={field.id.toString()}
                   onChange={(e) =>

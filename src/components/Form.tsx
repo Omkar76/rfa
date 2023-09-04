@@ -202,7 +202,7 @@ export const Form: FC<FormProps> = ({ formID }) => {
         />
 
         {formData.fields.map((field) => (
-          <div className="flex items-center gap-2">
+          <div key={field.id} className="flex items-center gap-2">
             {renderField(field)}
             <select
               className="p-3"
@@ -222,7 +222,7 @@ export const Form: FC<FormProps> = ({ formID }) => {
                   case "multiselect":
                     selected = type === "multiselect";
                 }
-               return <option value={type} selected={selected}>{type.toUpperCase()} </option>
+               return <option key={type} defaultValue={type} selected={selected}>{type.toUpperCase()} </option>
               })}
             </select>
 

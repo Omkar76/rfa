@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC } from "react";
 import { RadioFieldData } from "../types/forms";
 
 export interface RadioFieldPreviewProps {
@@ -24,9 +24,9 @@ export const PreviewRadio: FC<RadioFieldPreviewProps> = ({
 
       {/* {showOptions && */}
       <div className="flex flex-col border p-2">
-        {field.options.map((option) => {
+        {field.options.map((option, index) => {
           return (
-            <label>
+            <label key={index}>
               <input
                 name={field.id.toString()}
                 onChange={(e) => e.target.checked && setValue(option)}

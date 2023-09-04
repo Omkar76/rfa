@@ -29,7 +29,7 @@ export const RadioField: FC<RadioFieldProps> = ({ fieldData, setField }) => {
             <span className="font-extrabold min-w-[300px]">Options:</span>
             {fieldData.options.map((option, index) => {
               return (
-                <div className="flex gap-2 w-full justify-between border p-2">
+                <div key={index} className="flex gap-2 w-full justify-between border p-2">
                   <span>{option}</span>
                   <svg
                     onClick={() => deleteOption(index)}

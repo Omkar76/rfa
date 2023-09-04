@@ -43,7 +43,7 @@ export const FormPreview: FC<FormProps> = ({ formID }) => {
     });
   };
 
-  const renderField = (field: FormFieldData) => {
+  const RenderField = ({field} : {field : FormFieldData}) => {
     switch (field.kind) {
       case "text":
         return (
@@ -70,7 +70,7 @@ export const FormPreview: FC<FormProps> = ({ formID }) => {
         );
 
       default:
-        <h1>Unsupported field type</h1>;
+        return <h1>Unsupported field type</h1>;
     }
   };
 
@@ -90,7 +90,7 @@ export const FormPreview: FC<FormProps> = ({ formID }) => {
       >
         <h2 className="text-2xl text-center underline">{formData.title}</h2>
         <Carousel>
-          {formData.fields.map((field) => renderField(field))}
+          {formData.fields.map((field) => <RenderField key={field.id} field={field}/>)}
         </Carousel>
       </form>
     </div>
