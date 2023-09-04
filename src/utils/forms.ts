@@ -55,3 +55,7 @@ export function saveFormData(currentFormState: FormData): FormData[] {
   saveLocalForms(updatedLocalForms);
   return updatedLocalForms;
 }
+
+export function formExists(id : FormData['id']){
+  return getLocalForms().some(form=>form.id === id);
+}
