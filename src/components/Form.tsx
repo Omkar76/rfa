@@ -210,9 +210,20 @@ export const Form: FC<FormProps> = ({ formID }) => {
                 setFieldType(field, e.target.value as fieldType);
               }}
             >
-              {HTMLInputTypeAttributeValues.map((type) => (
-                <option value={type}>{type.toUpperCase()}</option>
-              ))}
+              {HTMLInputTypeAttributeValues.map((type) => {
+                let selected = false;
+                switch(field.kind){
+                  case "text":
+                    selected = type === field.type;
+                  break;
+                  case "radio":
+                    selected = type === "radio";
+                    break;
+                  case "multiselect":
+                    selected = type === "multiselect";
+                }
+               return <option value={type} selected={selected}>{type.toUpperCase()} </option>
+              })}
             </select>
 
             <svg

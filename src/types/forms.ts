@@ -5,8 +5,6 @@ export const HTMLInputTypeAttributeValues = [
   "number",
   "date",
   "time",
-  "checkbox",
-  "submit",
   "color",
   "range",
   "search",
