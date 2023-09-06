@@ -48,6 +48,7 @@ export const FormField: FC<FormFieldProps> = ({
 
         <select
           className="p-3"
+          value={fieldData.type}
           onChange={(e) => setField({ ...fieldData, type: e.target.value })}
         >
           {HTMLInputTypeAttributeValues.map((type) => (
