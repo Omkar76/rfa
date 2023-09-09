@@ -206,23 +206,15 @@ export const Form: FC<FormProps> = ({ formID }) => {
             {renderField(field)}
             <select
               className="p-3"
+              defaultValue={
+                field.kind==="text"? field.type : field.kind
+              } 
               onChange={(e) => {
                 setFieldType(field, e.target.value as fieldType);
               }}
             >
-              {HTMLInputTypeAttributeValues.map((type) => {
-                let selected = false;
-                switch(field.kind){
-                  case "text":
-                    selected = type === field.type;
-                  break;
-                  case "radio":
-                    selected = type === "radio";
-                    break;
-                  case "multiselect":
-                    selected = type === "multiselect";
-                }
-               return <option key={type} defaultValue={type} selected={selected}>{type.toUpperCase()} </option>
+              {HTMLInputTypeAttributeValues.map((type) => {  
+             return <option key={type} value={type}>{type.toUpperCase()} </option>
               })}
             </select>
 
