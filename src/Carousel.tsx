@@ -1,17 +1,30 @@
-import { useState, FC } from "react";
+import { useState, FC, useReducer } from "react";
 
 interface CarouselProps {
   children: React.ReactNode[];
 }
 
+type CarouselAction = "next" | "previous";
+
+const reducer = (state: number, action: CarouselAction) => {
+  switch (action) {
+    case "next":
+      return state + 1;
+    case "previous":
+      return state - 1;
+    default:
+      return 0;
+  }
+};
+
 export const Carousel: FC<CarouselProps> = ({ children }) => {
-  const [current, setCurrent] = useState(0);
+  const [current, dispatch] = useReducer(reducer, 0);
   return (
     <div>
       <div className="flex items-center justify-between">
         <svg
           style={{ visibility: current > 0 ? "visible" : "hidden" }}
-          onClick={() => setCurrent((value) => value - 1)}
+          onClick={() => dispatch("previous")}
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -33,7 +46,7 @@ export const Carousel: FC<CarouselProps> = ({ children }) => {
           style={{
             visibility: current < children.length - 1 ? "visible" : "hidden",
           }}
-          onClick={() => setCurrent((value) => value + 1)}
+          onClick={() => dispatch("next")}
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"

@@ -3,22 +3,16 @@ import { MultiSelectFieldData } from "../types/forms";
 
 export interface MultiSelectFieldPreviewProps {
   field: MultiSelectFieldData;
-  setField: (field: MultiSelectFieldData) => void;
+  addAnswer: (answer: string) => void;
+  deleteAnswer: (answer: string) => void;
 }
 
 export const PreviewMultiSelect: FC<MultiSelectFieldPreviewProps> = ({
   field,
-  setField,
+  addAnswer,
+  deleteAnswer,
 }) => {
   const [showOptions, setShowOptions] = useState(false);
-
-  const addValue = (v: string) => {
-    setField({ ...field, value: [...field.value, v] });
-  };
-
-  const deleteValue = (v: string) => {
-    setField({ ...field, value: field.value.filter((option) => option !== v) });
-  };
 
   return (
     <div className="flex flex-col items-center gap-2">
@@ -41,7 +35,7 @@ export const PreviewMultiSelect: FC<MultiSelectFieldPreviewProps> = ({
                 <input
                   name={field.id.toString()}
                   onChange={(e) =>
-                    e.target.checked ? addValue(option) : deleteValue(option)
+                    e.target.checked ? addAnswer(option) : deleteAnswer(option)
                   }
                   type="checkbox"
                   defaultChecked={!!field.value.find((o) => o === option)}

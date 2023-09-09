@@ -1,4 +1,4 @@
-import { FC, useEffect, useRef, useState } from "react";
+import { FC, useEffect, useReducer, useRef, useState } from "react";
 import { FormField } from "../inputs/FormField";
 import { Link } from "raviger";
 import { getFormById, getDefaultFormData, saveFormData } from "../utils/forms";
@@ -6,7 +6,6 @@ import {
   FormData,
   FormFieldData,
   HTMLInputTypeAttributeValues,
-  fieldType,
 } from "../types/forms";
 import { MultiSelectField } from "../inputs/MultiSelectFormField";
 import { RadioField } from "../inputs/RadioFormField";
@@ -21,8 +20,191 @@ function initialState(formID: number): FormData {
   return form || getDefaultFormData();
 }
 
+const getNewField = (type: string, label: string): FormFieldData => {
+  switch (type) {
+    case "multiselect":
+      return {
+        kind: "multiselect",
+        options: [],
+        id: +new Date(),
+        label: label,
+        value: [],
+      };
+
+    case "radio":
+      return {
+        kind: "radio",
+        options: [],
+        id: +new Date(),
+        label: label,
+        value: "",
+      };
+
+    default:
+      return {
+        kind: "text",
+        id: +new Date(),
+        label: label,
+        type: type,
+        value: "",
+      };
+  }
+};
+
+type RemoveAction = {
+  type: "remove_field";
+  id: number;
+};
+
+type AddAction = {
+  type: "add_field";
+  label: string;
+  kind: string;
+};
+
+type UpdateTitle = {
+  type: "update_title";
+  title: string;
+};
+
+type UpdateFieldTypeAction = {
+  type: "update_field_type";
+  fieldType: string;
+  fieldId: number;
+};
+
+type AddOptionAction = {
+  type: "add_option";
+  option: string;
+  fieldId: number;
+};
+
+type RemoveOptionAction = {
+  type: "remove_option";
+  fieldId: number;
+  index: number;
+};
+
+type UpdateLabelAction = {
+  type: "update_label";
+  fieldId: number;
+  label: string;
+};
+
+type UpdateOptionAction = {
+  type: "update_option";
+  fieldId: number;
+  index: number;
+  option: string;
+};
+
+type FormAction =
+  | RemoveAction
+  | AddAction
+  | UpdateTitle
+  | UpdateFieldTypeAction
+  | AddOptionAction
+  | RemoveOptionAction
+  | UpdateOptionAction
+  | UpdateLabelAction;
+
+const reducer = (state: FormData, action: FormAction): FormData => {
+  switch (action.type) {
+    case "add_field":
+      const newField = getNewField(action.kind, action.label);
+      return { ...state, fields: [...state.fields, newField] };
+
+    case "remove_field":
+      return {
+        ...state,
+        fields: state.fields.filter((field) => action.id !== field.id),
+      };
+
+    case "update_field_type":
+      return {
+        ...state,
+        fields: state.fields.map((field) => {
+          if (field.id === action.fieldId) {
+            return getNewField(action.fieldType, field.label);
+          }
+          return field;
+        }),
+      };
+
+    case "update_label":
+      return {
+        ...state,
+        fields: state.fields.map((field) => {
+          return field.id === action.fieldId
+            ? { ...field, label: action.label }
+            : field;
+        }),
+      };
+
+    case "update_title":
+      return { ...state, title: action.title };
+
+    case "add_option":
+      return {
+        ...state,
+        fields: state.fields.map((field: FormFieldData) => {
+          if (
+            field.id === action.fieldId &&
+            (field.kind === "radio" || field.kind === "multiselect")
+          )
+            return {
+              ...field,
+              options: [...field.options, action.option],
+            };
+
+          return field;
+        }),
+      };
+
+    case "remove_option":
+      return {
+        ...state,
+        fields: state.fields.map((field) => {
+          if (
+            field.id === action.fieldId &&
+            (field.kind === "radio" || field.kind === "multiselect")
+          ) {
+            return {
+              ...field,
+              options: field.options.filter((_, i) => action.index !== i),
+            };
+          }
+          return field;
+        }),
+      };
+
+    case "update_option":
+      return {
+        ...state,
+        fields: state.fields.map((field: FormFieldData) => {
+          if (
+            field.id === action.fieldId &&
+            (field.kind === "radio" || field.kind === "multiselect")
+          )
+            return {
+              ...field,
+              options: field.options.map((option, i) =>
+                action.index !== i ? option : action.option,
+              ),
+            };
+          return field;
+        }),
+      };
+
+    default:
+      return state;
+  }
+};
+
 export const Form: FC<FormProps> = ({ formID }) => {
-  const [formData, setFormData] = useState(() => initialState(formID));
+  const [formData, dispatch] = useReducer(reducer, null, () =>
+    initialState(formID),
+  );
   const [newFieldLabel, setNewFieldLabel] = useState("");
   const [newFieldType, setNewFieldType] = useState("text");
   const titleRef = useRef<HTMLInputElement>(null);
@@ -47,95 +229,6 @@ export const Form: FC<FormProps> = ({ formID }) => {
     };
   }, [formData]);
 
-  const addField = () => {
-    switch (newFieldType) {
-      case "multiselect":
-        setFormData({
-          ...formData,
-          fields: [
-            ...formData.fields,
-            {
-              kind: "multiselect",
-              options: [],
-              id: +new Date(),
-              label: newFieldLabel,
-              value: [],
-            },
-          ],
-        });
-
-        break;
-
-      case "radio":
-        setFormData({
-          ...formData,
-          fields: [
-            ...formData.fields,
-            {
-              kind: "radio",
-              options: [],
-              id: +new Date(),
-              label: newFieldLabel,
-              value: "",
-            },
-          ],
-        });
-        break;
-
-      default:
-        setFormData({
-          ...formData,
-          fields: [
-            ...formData.fields,
-            {
-              kind: "text",
-              id: +new Date(),
-              label: newFieldLabel,
-              type: newFieldType,
-              value: "",
-            },
-          ],
-        });
-    }
-
-    setNewFieldLabel("");
-    setNewFieldType("text");
-  };
-
-  const removeField = (id: number) => {
-    setFormData({
-      ...formData,
-      fields: formData.fields.filter((field) => field.id !== id),
-    });
-  };
-
-  const setField = (id: number, updatedFieldData: FormFieldData) => {
-    setFormData({
-      ...formData,
-      fields: formData.fields.map((field) => {
-        if (field.id !== id) {
-          return field;
-        }
-
-        return updatedFieldData;
-      }),
-    });
-  };
-
-  const clearFields = () => {
-    setFormData({
-      ...formData,
-      fields: formData.fields.map((field) => {
-        switch (field.kind) {
-          case "multiselect":
-            return { ...field, value: [] };
-          default:
-            return { ...field, value: "" };
-        }
-      }),
-    });
-  };
-
   const renderField = (field: FormFieldData) => {
     switch (field.kind) {
       case "text":
@@ -143,25 +236,62 @@ export const Form: FC<FormProps> = ({ formID }) => {
           <FormField
             key={field.id}
             fieldData={field}
-            setField={setField.bind(null, field.id)}
-            removField={removeField.bind(null, field.id)}
+            updateLabel={(value) =>
+              dispatch({
+                type: "update_label",
+                fieldId: field.id,
+                label: value,
+              })
+            }
           />
         );
       case "multiselect":
         return (
           <MultiSelectField
+            deleteOption={(index) =>
+              dispatch({ type: "remove_option", fieldId: field.id, index })
+            }
+            updateOption={(index, option) =>
+              dispatch({
+                type: "update_option",
+                fieldId: field.id,
+                index,
+                option,
+              })
+            }
+            updateLabel={(label) =>
+              dispatch({ type: "update_label", fieldId: field.id, label })
+            }
+            addOption={(option) =>
+              dispatch({ type: "add_option", fieldId: field.id, option })
+            }
             key={field.id}
             fieldData={field}
-            setField={setField.bind(null, field.id)}
           />
         );
 
       case "radio":
         return (
           <RadioField
+            deleteOption={(index) =>
+              dispatch({ type: "remove_option", fieldId: field.id, index })
+            }
+            updateOption={(index, option) =>
+              dispatch({
+                type: "update_option",
+                fieldId: field.id,
+                index,
+                option,
+              })
+            }
+            updateLabel={(label) =>
+              dispatch({ type: "update_label", fieldId: field.id, label })
+            }
+            addOption={(option) =>
+              dispatch({ type: "add_option", fieldId: field.id, option })
+            }
             key={field.id}
             fieldData={field}
-            setField={setField.bind(null, field.id)}
           />
         );
 
@@ -170,25 +300,6 @@ export const Form: FC<FormProps> = ({ formID }) => {
     }
   };
 
-  const setFieldType = (field: FormFieldData, type: fieldType) => {
-    switch (type) {
-      case "multiselect":
-        setField(field.id, {
-          ...field,
-          kind: "multiselect",
-          options: [],
-          value: [],
-        });
-        break;
-
-      case "radio":
-        setField(field.id, { ...field, kind: "radio", options: [], value: "" });
-        break;
-      default:
-        setField(field.id, { ...field, kind: "text", type: type, value: "" });
-        break;
-    }
-  };
   return (
     <div className="w-full">
       <form>
@@ -196,7 +307,7 @@ export const Form: FC<FormProps> = ({ formID }) => {
           ref={titleRef}
           value={formData.title}
           onChange={(e) => {
-            setFormData({ ...formData, title: e.target.value });
+            dispatch({ type: "update_title", title: e.target.value });
           }}
           className="focus:border-blue-300 border-2 border-gray-300 p-2 w-full my-1 bg-slate-100 outline-none rounded-sm"
         />
@@ -206,20 +317,26 @@ export const Form: FC<FormProps> = ({ formID }) => {
             {renderField(field)}
             <select
               className="p-3"
-              defaultValue={
-                field.kind==="text"? field.type : field.kind
-              } 
+              defaultValue={field.kind === "text" ? field.type : field.kind}
               onChange={(e) => {
-                setFieldType(field, e.target.value as fieldType);
+                dispatch({
+                  type: "update_field_type",
+                  fieldId: field.id,
+                  fieldType: e.target.value,
+                });
               }}
             >
-              {HTMLInputTypeAttributeValues.map((type) => {  
-             return <option key={type} value={type}>{type.toUpperCase()} </option>
+              {HTMLInputTypeAttributeValues.map((type) => {
+                return (
+                  <option key={type} value={type}>
+                    {type.toUpperCase()}{" "}
+                  </option>
+                );
               })}
             </select>
 
             <svg
-              onClick={() => removeField(field.id)}
+              onClick={() => dispatch({ type: "remove_field", id: field.id })}
               role="button"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -252,11 +369,19 @@ export const Form: FC<FormProps> = ({ formID }) => {
             }}
           >
             {HTMLInputTypeAttributeValues.map((type) => (
-              <option key={type} value={type}>{type.toUpperCase()}</option>
+              <option key={type} value={type}>
+                {type.toUpperCase()}
+              </option>
             ))}
           </select>
           <svg
-            onClick={addField}
+            onClick={() =>
+              dispatch({
+                type: "add_field",
+                kind: newFieldType,
+                label: newFieldLabel,
+              })
+            }
             role="button"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -280,15 +405,6 @@ export const Form: FC<FormProps> = ({ formID }) => {
             }}
           >
             Save
-          </button>
-          <button
-            className="p-2 bg-white hover:bg-blue-60 text-black rounded-md border-2 border-black"
-            onClick={(e) => {
-              e.preventDefault();
-              clearFields();
-            }}
-          >
-            Clear Fields
           </button>
           <Link href="/">
             <button className="p-2 bg-gray-500 hover:bg-gray-600 text-white rounded-md ml-auto">

@@ -9,9 +9,11 @@ import { formExists } from "./utils/forms";
 const routes = {
   "/": () => <Home />,
   "/about": () => <About />,
-  "/forms/:id": ({ id }: { id: string }) => formExists(+id) ? <Form formID={+id} /> : <ErrorPage/>,
-  "/forms/preview/:id": ({ id }: { id: string }) => formExists(+id) ? <FormPreview formID={+id} /> : <ErrorPage/>,
-  "/*" : () => <ErrorPage/>
+  "/forms/:id": ({ id }: { id: string }) =>
+    formExists(+id) ? <Form formID={+id} /> : <ErrorPage />,
+  "/forms/preview/:id": ({ id }: { id: string }) =>
+    formExists(+id) ? <FormPreview formID={+id} /> : <ErrorPage />,
+  "/*": () => <ErrorPage />,
 };
 
 export default function AppRouter() {

@@ -49,13 +49,13 @@ export function getFormById(id: number): FormData | undefined {
 export function saveFormData(currentFormState: FormData): FormData[] {
   const localForms = getLocalForms();
   const updatedLocalForms = localForms.map((form) =>
-    form.id === currentFormState.id ? currentFormState : form
+    form.id === currentFormState.id ? currentFormState : form,
   );
 
   saveLocalForms(updatedLocalForms);
   return updatedLocalForms;
 }
 
-export function formExists(id : FormData['id']){
-  return getLocalForms().some(form=>form.id === id);
+export function formExists(id: FormData["id"]) {
+  return getLocalForms().some((form) => form.id === id);
 }

@@ -31,7 +31,10 @@ export const FormList: FC<FormListProps> = () => {
         />
       </form>
       <h2 className="font-bold text-lg">Saved Forms</h2>
-      <p>{forms.length === 0 && 'No saved forms found. Creare new forms by clicking "new form" button'}</p>
+      <p>
+        {forms.length === 0 &&
+          'No saved forms found. Creare new forms by clicking "new form" button'}
+      </p>
       <div className="flex gap-1 flex-col w-full">
         {forms
           .filter((form) => form.title.includes(search || ""))

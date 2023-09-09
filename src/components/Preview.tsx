@@ -1,7 +1,7 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useReducer } from "react";
 import { useNavigate } from "raviger";
-import { getFormById, getDefaultFormData, saveFormData } from "../utils/forms";
-import { FormData, FormFieldData } from "../types/forms";
+import { getFormById, getDefaultFormData } from "../utils/forms";
+import { FormData } from "../types/forms";
 import { Carousel } from "../Carousel";
 import { PreviewTextField } from "../previews/TextFieldPreview";
 import { PreviewMultiSelect } from "../previews/MultiSelectFieldPreview";
@@ -17,67 +17,89 @@ function initialState(formID: number): FormData {
   return form || getDefaultFormData();
 }
 
-export const FormPreview: FC<FormProps> = ({ formID }) => {
-  const [formData, setFormData] = useState(() => initialState(formID));
+type SetAnswer = {
+  type: "set_answer";
+  fieldId: number;
+  answer: string;
+};
 
-  useEffect(() => {
-    let timeout = setTimeout(() => {
-      saveFormData(formData);
-    }, 500);
+type AddAnswer = {
+  type: "add_answer";
+  fieldId: number;
+  answer: string;
+};
 
-    return () => {
-      clearTimeout(timeout);
-    };
-  }, [formData]);
+type DeleteAnswer = {
+  type: "delete_answer";
+  fieldId: number;
+  answer: string;
+};
 
-  const setField = (id: number, updatedFieldData: FormFieldData) => {
-    setFormData({
-      ...formData,
-      fields: formData.fields.map((field) => {
-        if (field.id !== id) {
+type PreviewActions = SetAnswer | AddAnswer | DeleteAnswer;
+
+const reducer = (state: FormData, action: PreviewActions): FormData => {
+  switch (action.type) {
+    case "set_answer":
+      return {
+        ...state,
+        fields: state.fields.map((field) => {
+          if (field.id === action.fieldId) {
+            if (
+              field.kind !== "multiselect" &&
+              typeof action.answer == "string"
+            ) {
+              return { ...field, value: action.answer };
+            }
+          }
           return field;
-        }
+        }),
+      };
 
-        return updatedFieldData;
-      }),
-    });
-  };
+    case "add_answer":
+      return {
+        ...state,
+        fields: state.fields.map((field) => {
+          if (field.id === action.fieldId) {
+            if (field.kind === "multiselect") {
+              return {
+                ...field,
+                value: [...field.value, action.answer],
+              };
+            }
+          }
+          return field;
+        }),
+      };
 
-  const RenderField = ({field} : {field : FormFieldData}) => {
-    switch (field.kind) {
-      case "text":
-        return (
-          <PreviewTextField
-            field={field}
-            setField={setField.bind(null, field.id)}
-          />
-        );
+    case "delete_answer":
+      return {
+        ...state,
+        fields: state.fields.map((field) => {
+          if (field.id === action.fieldId) {
+            if (field.kind === "multiselect") {
+              return {
+                ...field,
+                value: field.value.filter((v) => v !== action.answer),
+              };
+            }
+          }
+          return field;
+        }),
+      };
+    default:
+      return state;
+  }
+};
 
-      case "multiselect":
-        return (
-          <PreviewMultiSelect
-            field={field}
-            setField={setField.bind(null, field.id)}
-          />
-        );
-
-      case "radio":
-        return (
-          <PreviewRadio
-            field={field}
-            setField={setField.bind(null, field.id)}
-          />
-        );
-
-      default:
-        return <h1>Unsupported field type</h1>;
-    }
-  };
+export const FormPreview: FC<FormProps> = ({ formID }) => {
+  const [formData, dispatch] = useReducer(reducer, null!, () =>
+    initialState(formID),
+  );
 
   const navigate = useNavigate();
 
-  if(formData.fields.length === 0){
-    return <p className="text-5xl">Empty Form</p>
+  if (formData.fields.length === 0) {
+    return <p className="text-5xl">Empty Form</p>;
   }
 
   return (
@@ -90,7 +112,63 @@ export const FormPreview: FC<FormProps> = ({ formID }) => {
       >
         <h2 className="text-2xl text-center underline">{formData.title}</h2>
         <Carousel>
-          {formData.fields.map((field) => <RenderField key={field.id} field={field}/>)}
+          {formData.fields.map((field) => {
+            switch (field.kind) {
+              case "text":
+                return (
+                  <PreviewTextField
+                    key={field.id}
+                    field={field}
+                    setAnswer={(answer) => {
+                      dispatch({
+                        type: "set_answer",
+                        fieldId: field.id,
+                        answer,
+                      });
+                    }}
+                  />
+                );
+
+              case "multiselect":
+                return (
+                  <PreviewMultiSelect
+                    key={field.id}
+                    field={field}
+                    addAnswer={(answer) => {
+                      dispatch({
+                        type: "add_answer",
+                        fieldId: field.id,
+                        answer,
+                      });
+                    }}
+                    deleteAnswer={(answer) => {
+                      dispatch({
+                        type: "delete_answer",
+                        fieldId: field.id,
+                        answer,
+                      });
+                    }}
+                  />
+                );
+
+              case "radio":
+                return (
+                  <PreviewRadio
+                    key={field.id}
+                    field={field}
+                    setAnswer={(answer) => {
+                      dispatch({
+                        type: "set_answer",
+                        fieldId: field.id,
+                        answer,
+                      });
+                    }}
+                  />
+                );
+              default:
+                return <h1>Invalid form element</h1>;
+            }
+          })}
         </Carousel>
       </form>
     </div>

@@ -3,36 +3,28 @@ import { MultiSelectFieldData } from "../types/forms";
 
 export interface MultiSelectFieldProps {
   fieldData: MultiSelectFieldData;
-  setField: (field: MultiSelectFieldData) => void;
+  updateLabel: (label: string) => void;
+  addOption: (option: string) => void;
+  deleteOption: (index: number) => void;
+  updateOption: (index: number, option: string) => void;
 }
 
 export const MultiSelectField: FC<MultiSelectFieldProps> = ({
   fieldData,
-  setField,
+  updateLabel,
+  deleteOption,
+  addOption,
+  updateOption,
 }) => {
   const [option, setOption] = useState("");
-  const deleteOption = (index: number) => {
-    setField({
-      ...fieldData,
-      options: fieldData.options.filter((_, i) => i !== index),
-    });
-  };
 
-  const updateOption = (index: number, value: string) => {
-    setField({
-      ...fieldData,
-      options: fieldData.options.map((option, i) =>
-        i !== index ? option : value
-      ),
-    });
-  };
   return (
     <>
       <div className="flex flex-col w-full items-center gap-2">
         <input
           required
           value={fieldData.label}
-          onChange={(e) => setField({ ...fieldData, label: e.target.value })}
+          onChange={(e) => updateLabel(e.target.value)}
           className="w-full focus:border-blue-300 border-2 border-gray-300 p-2 my-1 bg-slate-100 outline-none rounded-sm"
         />
         <div className="flex items-stretch w-full border p-2">
@@ -40,7 +32,10 @@ export const MultiSelectField: FC<MultiSelectFieldProps> = ({
             <span className="font-extrabold min-w-[300px]">Options:</span>
             {fieldData.options.map((option, index) => {
               return (
-                <div key={index} className="flex gap-2 w-full justify-between border p-2">
+                <div
+                  key={index}
+                  className="flex gap-2 w-full justify-between border p-2"
+                >
                   <input
                     value={option}
                     onChange={(e) => updateOption(index, e.target.value)}
@@ -72,10 +67,7 @@ export const MultiSelectField: FC<MultiSelectFieldProps> = ({
               onChange={(e) => setOption(e.target.value)}
               onKeyUp={(e) => {
                 if (e.key === "Enter") {
-                  setField({
-                    ...fieldData,
-                    options: [...fieldData.options, option],
-                  });
+                  addOption(option);
                   setOption("");
                 }
               }}
