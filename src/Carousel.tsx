@@ -1,4 +1,4 @@
-import { useState, FC, useReducer } from "react";
+import { FC, useReducer } from "react";
 
 interface CarouselProps {
   children: React.ReactNode[];
