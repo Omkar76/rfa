@@ -3,7 +3,7 @@ interface AppContainerProps {
 }
 export default function AppContainer(prosp: AppContainerProps) {
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-100">
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
       {prosp.children}
     </div>
   );

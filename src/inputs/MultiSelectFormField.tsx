@@ -3,43 +3,43 @@ import { MultiSelectFieldData } from "../types/forms";
 
 export interface MultiSelectFieldProps {
   fieldData: MultiSelectFieldData;
-  updateLabel: (label: string) => void;
-  addOption: (option: string) => void;
-  deleteOption: (index: number) => void;
-  updateOption: (index: number, option: string) => void;
+  updateOptions: (options: string[]) => void;
 }
 
 export const MultiSelectField: FC<MultiSelectFieldProps> = ({
   fieldData,
-  updateLabel,
-  deleteOption,
-  addOption,
-  updateOption,
+  updateOptions,
 }) => {
+  const [options, setOptions] = useState(fieldData.options);
   const [option, setOption] = useState("");
 
+  const deleteOption = (index: number) => {
+    const newOptions = options.filter((_, i) => i !== index);
+    setOptions(newOptions);
+    updateOptions(newOptions);
+  };
+
+  const addOption = (option: string) => {
+    const newOptions = [...options, option];
+    setOptions(newOptions);
+    updateOptions(newOptions);
+  };
   return (
     <>
       <div className="flex flex-col w-full items-center gap-2">
-        <input
-          required
-          value={fieldData.label}
-          onChange={(e) => updateLabel(e.target.value)}
-          className="w-full focus:border-blue-300 border-2 border-gray-300 p-2 my-1 bg-slate-100 outline-none rounded-sm"
-        />
+        <span className="w-full focus:border-blue-300 border-2 border-gray-300 p-2 my-1 bg-slate-100 outline-none rounded-sm">
+          {fieldData.label}
+        </span>
         <div className="flex items-stretch w-full border p-2">
           <div className="w-full">
             <span className="font-extrabold min-w-[300px]">Options:</span>
-            {fieldData.options.map((option, index) => {
+            {options.map((option, index) => {
               return (
                 <div
                   key={index}
                   className="flex gap-2 w-full justify-between border p-2"
                 >
-                  <input
-                    value={option}
-                    onChange={(e) => updateOption(index, e.target.value)}
-                  />
+                  <span>{option}</span>
 
                   <svg
                     onClick={() => deleteOption(index)}

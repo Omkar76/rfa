@@ -1,104 +1,45 @@
-import { FC, useReducer } from "react";
+import { FC, useEffect, useState } from "react";
 import { useNavigate } from "raviger";
-import { getFormById, getDefaultFormData } from "../utils/forms";
-import { FormData } from "../types/forms";
+import { Form, FormFieldData } from "../types/forms";
 import { Carousel } from "../Carousel";
 import { PreviewTextField } from "../previews/TextFieldPreview";
 import { PreviewMultiSelect } from "../previews/MultiSelectFieldPreview";
 import { PreviewRadio } from "../previews/RadioFieldPreview";
+import { createSubmission, getFields, getForm } from "../utils/apiUtils";
+import { useRequireAuth } from "../hooks/useRequireAuth";
 
 export interface FormProps {
   formID: number;
 }
 
-function initialState(formID: number): FormData {
-  const form = getFormById(formID);
-
-  return form || getDefaultFormData();
-}
-
-type SetAnswer = {
-  type: "set_answer";
-  fieldId: number;
-  answer: string;
-};
-
-type AddAnswer = {
-  type: "add_answer";
-  fieldId: number;
-  answer: string;
-};
-
-type DeleteAnswer = {
-  type: "delete_answer";
-  fieldId: number;
-  answer: string;
-};
-
-type PreviewActions = SetAnswer | AddAnswer | DeleteAnswer;
-
-const reducer = (state: FormData, action: PreviewActions): FormData => {
-  switch (action.type) {
-    case "set_answer":
-      return {
-        ...state,
-        fields: state.fields.map((field) => {
-          if (field.id === action.fieldId) {
-            if (
-              field.kind !== "multiselect" &&
-              typeof action.answer == "string"
-            ) {
-              return { ...field, value: action.answer };
-            }
-          }
-          return field;
-        }),
-      };
-
-    case "add_answer":
-      return {
-        ...state,
-        fields: state.fields.map((field) => {
-          if (field.id === action.fieldId) {
-            if (field.kind === "multiselect") {
-              return {
-                ...field,
-                value: [...field.value, action.answer],
-              };
-            }
-          }
-          return field;
-        }),
-      };
-
-    case "delete_answer":
-      return {
-        ...state,
-        fields: state.fields.map((field) => {
-          if (field.id === action.fieldId) {
-            if (field.kind === "multiselect") {
-              return {
-                ...field,
-                value: field.value.filter((v) => v !== action.answer),
-              };
-            }
-          }
-          return field;
-        }),
-      };
-    default:
-      return state;
-  }
-};
-
 export const FormPreview: FC<FormProps> = ({ formID }) => {
-  const [formData, dispatch] = useReducer(reducer, null!, () =>
-    initialState(formID),
-  );
+  const user = useRequireAuth();
+  const [form, setForm] = useState<Form>({
+    is_public: false,
+    title: "",
+    description: "",
+    id: -1,
+  });
+
+  const [fields, setFields] = useState<FormFieldData[]>([]);
+
+  useEffect(() => {
+    user &&
+      getForm(formID).then((form) => {
+        setForm(form);
+      });
+  }, [formID, user]);
+
+  useEffect(() => {
+    user &&
+      getFields(formID).then((fields) => {
+        setFields(fields.results);
+      });
+  }, [formID, user]);
 
   const navigate = useNavigate();
 
-  if (formData.fields.length === 0) {
+  if (fields.length === 0) {
     return <p className="text-5xl">Empty Form</p>;
   }
 
@@ -107,61 +48,81 @@ export const FormPreview: FC<FormProps> = ({ formID }) => {
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          navigate("/");
+          createSubmission(
+            form,
+            fields.map((field) => {
+              return {
+                form_field: field.id,
+                value: field.value,
+              };
+            }),
+          ).then(() => navigate("/"));
         }}
       >
-        <h2 className="text-2xl text-center underline">{formData.title}</h2>
+        <h2 className="text-2xl text-center underline">{form.title}</h2>
         <Carousel>
-          {formData.fields.map((field) => {
+          {fields.map((field) => {
             switch (field.kind) {
-              case "text":
+              case "TEXT":
                 return (
                   <PreviewTextField
                     key={field.id}
                     field={field}
                     setAnswer={(answer) => {
-                      dispatch({
-                        type: "set_answer",
-                        fieldId: field.id,
-                        answer,
-                      });
+                      setFields(
+                        fields.map((f) => {
+                          if (f.id === field.id) {
+                            return {
+                              ...f,
+                              value: answer,
+                            };
+                          }
+                          return f;
+                        }),
+                      );
                     }}
                   />
                 );
 
-              case "multiselect":
+              case "DROPDOWN":
                 return (
                   <PreviewMultiSelect
                     key={field.id}
                     field={field}
-                    addAnswer={(answer) => {
-                      dispatch({
-                        type: "add_answer",
-                        fieldId: field.id,
-                        answer,
-                      });
-                    }}
-                    deleteAnswer={(answer) => {
-                      dispatch({
-                        type: "delete_answer",
-                        fieldId: field.id,
-                        answer,
-                      });
+                    setAnswer={(answer) => {
+                      // console.log(answer);
+                      setFields(
+                        fields.map((f) => {
+                          if (f.id === field.id) {
+                            return {
+                              ...f,
+                              value: answer,
+                            };
+                          }
+                          return f;
+                        }),
+                      );
                     }}
                   />
                 );
 
-              case "radio":
+              case "RADIO":
                 return (
                   <PreviewRadio
                     key={field.id}
                     field={field}
                     setAnswer={(answer) => {
-                      dispatch({
-                        type: "set_answer",
-                        fieldId: field.id,
-                        answer,
-                      });
+                      setFields(
+                        fields.map((f) => {
+                          if (f.id === field.id) {
+                            return {
+                              ...f,
+                              value: answer,
+                            };
+                          }
+                          return f;
+                        }),
+                      );
                     }}
                   />
                 );

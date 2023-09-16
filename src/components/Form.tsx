@@ -1,7 +1,7 @@
 import { FC, useEffect, useReducer, useRef, useState } from "react";
 import { FormField } from "../inputs/FormField";
 import { Link } from "raviger";
-import { getFormById, getDefaultFormData, saveFormData } from "../utils/forms";
+import { saveFormData } from "../utils/forms";
 import {
   FormData,
   FormFieldData,
@@ -9,41 +9,43 @@ import {
 } from "../types/forms";
 import { MultiSelectField } from "../inputs/MultiSelectFormField";
 import { RadioField } from "../inputs/RadioFormField";
+import {
+  createField,
+  deleteField,
+  getFields,
+  getForm,
+  updateOptions,
+} from "../utils/apiUtils";
+import { useRequireAuth } from "../hooks/useRequireAuth";
 
 export interface FormProps {
   formID: number;
 }
 
-function initialState(formID: number): FormData {
-  const form = getFormById(formID);
-
-  return form || getDefaultFormData();
-}
-
 const getNewField = (type: string, label: string): FormFieldData => {
   switch (type) {
-    case "multiselect":
+    case "DROPDOWN":
       return {
-        kind: "multiselect",
+        kind: "DROPDOWN",
         options: [],
-        id: +new Date(),
+        id: -1,
         label: label,
-        value: [],
+        value: "",
       };
 
-    case "radio":
+    case "RADIO":
       return {
-        kind: "radio",
+        kind: "RADIO",
         options: [],
-        id: +new Date(),
+        id: -1,
         label: label,
         value: "",
       };
 
     default:
       return {
-        kind: "text",
-        id: +new Date(),
+        kind: "TEXT",
+        id: -1,
         label: label,
         type: type,
         value: "",
@@ -58,8 +60,7 @@ type RemoveAction = {
 
 type AddAction = {
   type: "add_field";
-  label: string;
-  kind: string;
+  field: FormFieldData;
 };
 
 type UpdateTitle = {
@@ -73,17 +74,17 @@ type UpdateFieldTypeAction = {
   fieldId: number;
 };
 
-type AddOptionAction = {
-  type: "add_option";
-  option: string;
-  fieldId: number;
-};
+// type AddOptionAction = {
+//   type: "add_option";
+//   option: string;
+//   fieldId: number;
+// };
 
-type RemoveOptionAction = {
-  type: "remove_option";
-  fieldId: number;
-  index: number;
-};
+// type RemoveOptionAction = {
+//   type: "remove_option";
+//   fieldId: number;
+//   index: number;
+// };
 
 type UpdateLabelAction = {
   type: "update_label";
@@ -91,11 +92,21 @@ type UpdateLabelAction = {
   label: string;
 };
 
-type UpdateOptionAction = {
-  type: "update_option";
-  fieldId: number;
-  index: number;
-  option: string;
+// type UpdateOptionAction = {
+//   type: "update_option";
+//   fieldId: number;
+//   index: number;
+//   option: string;
+// };
+
+type SetFieldsAction = {
+  type: "set_fields";
+  fields: FormFieldData[];
+};
+
+type UpdateForm = {
+  type: "update_form";
+  form: Partial<FormData>;
 };
 
 type FormAction =
@@ -103,38 +114,39 @@ type FormAction =
   | AddAction
   | UpdateTitle
   | UpdateFieldTypeAction
-  | AddOptionAction
-  | RemoveOptionAction
-  | UpdateOptionAction
-  | UpdateLabelAction;
+  // | AddOptionAction
+  // | RemoveOptionAction
+  // | UpdateOptionAction
+  | UpdateLabelAction
+  | SetFieldsAction
+  | UpdateForm;
 
 const reducer = (state: FormData, action: FormAction): FormData => {
   switch (action.type) {
     case "add_field":
-      const newField = getNewField(action.kind, action.label);
-      return { ...state, fields: [...state.fields, newField] };
+      return { ...state, formFields: [...state.formFields, action.field] };
 
     case "remove_field":
       return {
         ...state,
-        fields: state.fields.filter((field) => action.id !== field.id),
+        formFields: state.formFields.filter((field) => action.id !== field.id),
       };
 
-    case "update_field_type":
-      return {
-        ...state,
-        fields: state.fields.map((field) => {
-          if (field.id === action.fieldId) {
-            return getNewField(action.fieldType, field.label);
-          }
-          return field;
-        }),
-      };
+    // case "update_field_type":
+    //   return {
+    //     ...state,
+    //     formFields: state.formFields.map((field) => {
+    //       if (field.id === action.fieldId) {
+    //         return getNewField(action.fieldType, field.label);
+    //       }
+    //       return field;
+    //     }),
+    //   };
 
     case "update_label":
       return {
         ...state,
-        fields: state.fields.map((field) => {
+        formFields: state.formFields.map((field) => {
           return field.id === action.fieldId
             ? { ...field, label: action.label }
             : field;
@@ -144,56 +156,68 @@ const reducer = (state: FormData, action: FormAction): FormData => {
     case "update_title":
       return { ...state, title: action.title };
 
-    case "add_option":
+    // case "add_option":
+    //   return {
+    //     ...state,
+    //     formFields: state.formFields.map((field: FormFieldData) => {
+    //       if (
+    //         field.id === action.fieldId &&
+    //         (field.kind === "RADIO" || field.kind === "DROPDOWN")
+    //       )
+    //         return {
+    //           ...field,
+    //           options: [...field.options, action.option],
+    //         };
+
+    //       return field;
+    //     }),
+    //   };
+
+    // case "remove_option":
+    //   return {
+    //     ...state,
+    //     formFields: state.formFields.map((field) => {
+    //       if (
+    //         field.id === action.fieldId &&
+    //         (field.kind === "RADIO" || field.kind === "DROPDOWN")
+    //       ) {
+    //         return {
+    //           ...field,
+    //           options: field.options.filter((_, i) => action.index !== i),
+    //         };
+    //       }
+    //       return field;
+    //     }),
+    //   };
+
+    // case "update_option":
+    //   return {
+    //     ...state,
+    //     formFields: state.formFields.map((field: FormFieldData) => {
+    //       if (
+    //         field.id === action.fieldId &&
+    //         (field.kind === "RADIO" || field.kind === "DROPDOWN")
+    //       )
+    //         return {
+    //           ...field,
+    //           options: field.options.map((option, i) =>
+    //             action.index !== i ? option : action.option,
+    //           ),
+    //         };
+    //       return field;
+    //     }),
+    //   };
+
+    case "set_fields":
       return {
         ...state,
-        fields: state.fields.map((field: FormFieldData) => {
-          if (
-            field.id === action.fieldId &&
-            (field.kind === "radio" || field.kind === "multiselect")
-          )
-            return {
-              ...field,
-              options: [...field.options, action.option],
-            };
-
-          return field;
-        }),
+        formFields: action.fields,
       };
 
-    case "remove_option":
+    case "update_form":
       return {
         ...state,
-        fields: state.fields.map((field) => {
-          if (
-            field.id === action.fieldId &&
-            (field.kind === "radio" || field.kind === "multiselect")
-          ) {
-            return {
-              ...field,
-              options: field.options.filter((_, i) => action.index !== i),
-            };
-          }
-          return field;
-        }),
-      };
-
-    case "update_option":
-      return {
-        ...state,
-        fields: state.fields.map((field: FormFieldData) => {
-          if (
-            field.id === action.fieldId &&
-            (field.kind === "radio" || field.kind === "multiselect")
-          )
-            return {
-              ...field,
-              options: field.options.map((option, i) =>
-                action.index !== i ? option : action.option,
-              ),
-            };
-          return field;
-        }),
+        ...action.form,
       };
 
     default:
@@ -202,11 +226,15 @@ const reducer = (state: FormData, action: FormAction): FormData => {
 };
 
 export const Form: FC<FormProps> = ({ formID }) => {
-  const [formData, dispatch] = useReducer(reducer, null, () =>
-    initialState(formID),
-  );
+  const user = useRequireAuth();
+  const [formData, dispatch] = useReducer(reducer, {
+    id: formID,
+    title: "",
+    formFields: [],
+  });
+
   const [newFieldLabel, setNewFieldLabel] = useState("");
-  const [newFieldType, setNewFieldType] = useState("text");
+  const [newFieldType, setNewFieldType] = useState("TEXT");
   const titleRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -220,76 +248,50 @@ export const Form: FC<FormProps> = ({ formID }) => {
   }, []);
 
   useEffect(() => {
-    let timeout = setTimeout(() => {
-      saveFormData(formData);
-    }, 500);
+    user &&
+      getForm(formID).then((form) => {
+        dispatch({ type: "update_form", form });
+      });
+  }, [formID, user]);
 
-    return () => {
-      clearTimeout(timeout);
-    };
-  }, [formData]);
+  useEffect(() => {
+    user &&
+      getFields(formID).then((fieldPagination) => {
+        return dispatch({
+          type: "set_fields",
+          fields: fieldPagination.results,
+        });
+      });
+  }, [formID, user]);
 
   const renderField = (field: FormFieldData) => {
     switch (field.kind) {
-      case "text":
-        return (
-          <FormField
-            key={field.id}
-            fieldData={field}
-            updateLabel={(value) =>
-              dispatch({
-                type: "update_label",
-                fieldId: field.id,
-                label: value,
-              })
-            }
-          />
-        );
-      case "multiselect":
+      case "TEXT":
+        return <FormField key={field.id} fieldData={field} />;
+      case "DROPDOWN":
         return (
           <MultiSelectField
-            deleteOption={(index) =>
-              dispatch({ type: "remove_option", fieldId: field.id, index })
-            }
-            updateOption={(index, option) =>
-              dispatch({
-                type: "update_option",
-                fieldId: field.id,
-                index,
-                option,
-              })
-            }
-            updateLabel={(label) =>
-              dispatch({ type: "update_label", fieldId: field.id, label })
-            }
-            addOption={(option) =>
-              dispatch({ type: "add_option", fieldId: field.id, option })
-            }
+            updateOptions={(options) => {
+              updateOptions(formID, field.id, options).then(() => {
+                // dispatch({ type: "update_options", fieldId: field.id, options });
+              });
+            }}
             key={field.id}
             fieldData={field}
           />
         );
 
-      case "radio":
+      case "RADIO":
         return (
           <RadioField
-            deleteOption={(index) =>
-              dispatch({ type: "remove_option", fieldId: field.id, index })
-            }
-            updateOption={(index, option) =>
-              dispatch({
-                type: "update_option",
-                fieldId: field.id,
-                index,
-                option,
-              })
-            }
             updateLabel={(label) =>
               dispatch({ type: "update_label", fieldId: field.id, label })
             }
-            addOption={(option) =>
-              dispatch({ type: "add_option", fieldId: field.id, option })
-            }
+            updateOptions={(options) => {
+              updateOptions(formID, field.id, options).then(() => {
+                // dispatch({ type: "update_options", fieldId: field.id, options });
+              });
+            }}
             key={field.id}
             fieldData={field}
           />
@@ -298,6 +300,13 @@ export const Form: FC<FormProps> = ({ formID }) => {
       default:
         return <></>;
     }
+  };
+
+  const addField = (type: string, label: string) => {
+    const field = getNewField(type, label);
+    createField(formID, field).then((newField) => {
+      dispatch({ type: "add_field", field: newField });
+    });
   };
 
   return (
@@ -312,31 +321,17 @@ export const Form: FC<FormProps> = ({ formID }) => {
           className="focus:border-blue-300 border-2 border-gray-300 p-2 w-full my-1 bg-slate-100 outline-none rounded-sm"
         />
 
-        {formData.fields.map((field) => (
+        {formData.formFields.map((field) => (
           <div key={field.id} className="flex items-center gap-2">
             {renderField(field)}
-            <select
-              className="p-3"
-              defaultValue={field.kind === "text" ? field.type : field.kind}
-              onChange={(e) => {
-                dispatch({
-                  type: "update_field_type",
-                  fieldId: field.id,
-                  fieldType: e.target.value,
-                });
-              }}
-            >
-              {HTMLInputTypeAttributeValues.map((type) => {
-                return (
-                  <option key={type} value={type}>
-                    {type.toUpperCase()}{" "}
-                  </option>
-                );
-              })}
-            </select>
+            {field.kind === "TEXT" ? field.type : field.kind}
 
             <svg
-              onClick={() => dispatch({ type: "remove_field", id: field.id })}
+              onClick={() => {
+                deleteField(formID, field.id).then(() => {
+                  dispatch({ type: "remove_field", id: field.id });
+                });
+              }}
               role="button"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -358,7 +353,7 @@ export const Form: FC<FormProps> = ({ formID }) => {
             placeholder="Untited Field"
             value={newFieldLabel}
             onChange={(e) => setNewFieldLabel(e.target.value)}
-            type="text"
+            type="TEXT"
             className="focus:border-blue-300 border-2 border-gray-300 p-2 w-full bg-slate-100 outline-none rounded-sm"
           />
 
@@ -375,13 +370,11 @@ export const Form: FC<FormProps> = ({ formID }) => {
             ))}
           </select>
           <svg
-            onClick={() =>
-              dispatch({
-                type: "add_field",
-                kind: newFieldType,
-                label: newFieldLabel,
-              })
-            }
+            onClick={() => {
+              if (newFieldLabel.length === 0) return;
+              addField(newFieldType, newFieldLabel);
+              setNewFieldLabel("");
+            }}
             role="button"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"

@@ -1,17 +1,17 @@
 export const HTMLInputTypeAttributeValues = [
-  "text",
-  "password",
-  "email",
-  "number",
-  "date",
-  "time",
-  "color",
-  "range",
-  "search",
-  "tel",
-  "url",
-  "radio",
-  "multiselect",
+  "TEXT",
+  // "password",
+  // "email",
+  // "number",
+  // "date",
+  // "time",
+  // "color",
+  // "range",
+  // "search",
+  // "tel",
+  // "url",
+  "RADIO",
+  "DROPDOWN",
 ] as const;
 
 export type fieldType = (typeof HTMLInputTypeAttributeValues)[number];
@@ -21,7 +21,7 @@ export type Field = {
 };
 
 export type TextFieldData = {
-  kind: "text";
+  kind: "TEXT";
   id: number;
   label: string;
   type?: string;
@@ -29,15 +29,15 @@ export type TextFieldData = {
 };
 
 export type MultiSelectFieldData = {
-  kind: "multiselect";
+  kind: "DROPDOWN";
   id: number;
   label: string;
   options: string[];
-  value: string[];
+  value: string;
 };
 
 export type RadioFieldData = {
-  kind: "radio";
+  kind: "RADIO";
   id: number;
   label: string;
   options: string[];
@@ -52,5 +52,25 @@ export type FormFieldData =
 export type FormData = {
   id: number;
   title: string;
-  fields: FormFieldData[];
+  formFields: FormFieldData[];
 };
+
+export type Kind = FormFieldData["kind"];
+export type Form = {
+  id: number;
+  title: string;
+  description?: string;
+  is_public: boolean;
+};
+
+export type Answer = {
+  form_field: number;
+  value: string;
+};
+
+export type Submission = {
+  id: number;
+  form: Form;
+  answers: Answer[];
+};
+export type Errors<T> = Partial<Record<keyof T, string>>;

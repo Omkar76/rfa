@@ -1,6 +1,5 @@
 import { FC } from "react";
 import { FormList } from "../FormLists";
-
 interface FormProps {}
 
 export const Home: FC<FormProps> = () => {

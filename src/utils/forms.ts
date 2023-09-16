@@ -3,11 +3,11 @@ import { FormFieldData, FormData } from "../types/forms";
 const LOCAL_FORMS_KEY = "LOCAL_FORMS_KEY_V1";
 
 const initialFormFields: FormFieldData[] = [
-  { kind: "text", id: 1, label: "First Name", value: "" },
-  { kind: "text", id: 2, label: "Last Name", value: "" },
-  { kind: "text", id: 3, label: "Email", type: "email", value: "" },
-  { kind: "text", id: 4, label: "Date of Birth", type: "date", value: "" },
-  { kind: "text", id: 5, label: "Phone number", type: "tel", value: "" },
+  { kind: "TEXT", id: 1, label: "First Name", value: "" },
+  { kind: "TEXT", id: 2, label: "Last Name", value: "" },
+  { kind: "TEXT", id: 3, label: "Email", type: "email", value: "" },
+  { kind: "TEXT", id: 4, label: "Date of Birth", type: "date", value: "" },
+  { kind: "TEXT", id: 5, label: "Phone number", type: "tel", value: "" },
 ];
 
 export function getLocalForms(): FormData[] {
@@ -19,7 +19,7 @@ export function getDefaultFormData(): FormData {
   return {
     id: new Date().getTime(),
     title: "Untitled Form",
-    fields: initialFormFields,
+    formFields: initialFormFields,
   };
 }
 
