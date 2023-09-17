@@ -1,4 +1,4 @@
-import { FormFieldData, FormData } from "../types/forms";
+import { FormData } from "../types/forms";
 
 const LOCAL_FORMS_KEY = "LOCAL_FORMS_KEY_V1";
 

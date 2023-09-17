@@ -46,7 +46,18 @@ export const Carousel:FC<CarouselProps> = ({ children, setCurrent }) => {
           />
         </svg>
 
-        <div className="m-10">{children[current]}</div>
+        <div className="m-10 transition-all duration-1000 ease-in-out">{
+        children.map((child, index) => {
+          return (
+            <div
+              key={index}
+              style={{ display: index === current ? "block" : "none" }}
+            >
+              {child}
+            </div>
+          );
+      })}
+        </div>
 
         <svg
           style={{

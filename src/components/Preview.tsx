@@ -7,6 +7,8 @@ import { PreviewMultiSelect } from "../previews/MultiSelectFieldPreview";
 import { PreviewRadio } from "../previews/RadioFieldPreview";
 import { createSubmission, getFields, getForm } from "../utils/apiUtils";
 import { useRequireAuth } from "../hooks/useRequireAuth";
+import LocationSelector from "../previews/LocationSelectorPreview";
+import { LatLngExpression } from "leaflet";
 
 export interface FormProps {
   formID: number;
@@ -132,6 +134,27 @@ export const FormPreview: FC<FormProps> = ({ formID }) => {
                     }}
                   />
                 );
+
+                case "GENERIC":
+                  switch(field.meta.type) {
+                    case  "LOCATION":
+                      return (<LocationSelector onChange={(latlng:LatLngExpression) => {
+                        setFields(
+                          fields.map((f) => {
+                            if (f.id === field.id) {
+                              return {
+                                ...f,
+                                value: latlng.toString(),
+                              };
+                            }
+                            return f;
+                          }),
+                        );
+                      }}/>
+                    )
+                    default:
+                      return <h1>Invalid generic field</h1>
+                  }
               default:
                 return <h1>Invalid form element</h1>;
             }
@@ -144,7 +167,10 @@ export const FormPreview: FC<FormProps> = ({ formID }) => {
           value="Submit"
           className="mx-auto block bg-blue-600 p-2 text-white rounded"
         />
+
       )}
+        <button></button>
+
       </form>
     </div>
   );

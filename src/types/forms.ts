@@ -9,7 +9,7 @@ export const HTMLInputTypeAttributeValues = [
   "range",
   // "search",
   "tel",
-  // "url",
+  "LOCATION",
   "RADIO",
   "DROPDOWN",
 ] as const;
@@ -46,10 +46,20 @@ export type RadioFieldData = {
   value: string;
 };
 
+export type LocationFieldData = {
+  kind :"GENERIC",
+  id: number;
+  label: string;
+  value: string;
+  meta: {
+    type: string;
+  }
+};
 export type FormFieldData =
   | TextFieldData
   | MultiSelectFieldData
-  | RadioFieldData;
+  | RadioFieldData
+  | LocationFieldData;
 
 export type FormData = {
   id: number;

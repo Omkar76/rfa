@@ -43,6 +43,17 @@ const getNewField = (type: string, label: string): FormFieldData => {
         value: "",
       };
 
+    case "LOCATION":
+      return {
+        kind: "GENERIC",
+        id: -1,
+        label: label,
+        value: "",
+        meta: {
+          type : "LOCATION"
+        },
+      };
+    
     default:
       return {
         kind: "TEXT",
@@ -291,8 +302,6 @@ export const Form: FC<FormProps> = ({ formID }) => {
 
   const renderField = (field: FormFieldData) => {
     switch (field.kind) {
-      case "TEXT":
-        return <FormField key={field.id} fieldData={field} />;
       case "DROPDOWN":
         return (
           <MultiSelectField
@@ -323,7 +332,7 @@ export const Form: FC<FormProps> = ({ formID }) => {
         );
 
       default:
-        return <></>;
+        return <FormField key={field.id} fieldData={field} />;
     }
   };
 
@@ -353,7 +362,7 @@ export const Form: FC<FormProps> = ({ formID }) => {
         {formData.formFields.map((field) => (
           <div key={field.id} className="flex items-center gap-2">
             {renderField(field)}
-            {field.kind === "TEXT" ? field?.meta?.type : field.kind}
+            {field.kind === "TEXT" || field.kind === "GENERIC"? field?.meta?.type : field.kind}
 
             <svg
               onClick={() => {

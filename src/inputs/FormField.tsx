@@ -1,8 +1,8 @@
 import { FC } from "react";
-import { TextFieldData } from "../types/forms";
+import { FormFieldData } from "../types/forms";
 
 export interface FormFieldProps {
-  fieldData: TextFieldData;
+  fieldData: FormFieldData;
 }
 
 export const FormField: FC<FormFieldProps> = ({ fieldData }) => {
