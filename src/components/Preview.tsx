@@ -140,6 +140,7 @@ export const FormPreview: FC<FormProps> = ({ formID }) => {
                   case "LOCATION":
                     return (
                       <LocationSelector
+                        key={field.id}
                         onChange={(latlng: LatLngExpression) => {
                           setFields(
                             fields.map((f) => {
