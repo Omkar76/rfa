@@ -69,9 +69,7 @@ export default function CreateForm() {
             className="p-2 border"
             name="description"
             value={form.description}
-            onChange={(e) =>
-              setForm({ ...form, description: e.target.value })
-            }
+            onChange={(e) => setForm({ ...form, description: e.target.value })}
           />
         </label>
         {errors.description && (
@@ -84,15 +82,11 @@ export default function CreateForm() {
             type="checkbox"
             name="is_public"
             checked={form.is_public}
-            onChange={(e) =>
-              setForm({ ...form, is_public: e.target.checked })
-            }
+            onChange={(e) => setForm({ ...form, is_public: e.target.checked })}
           />
           &nbsp;&nbsp;Public
         </label>
-        {errors.is_public && (
-          <p className="text-red-600">{errors.is_public}</p>
-        )}
+        {errors.is_public && <p className="text-red-600">{errors.is_public}</p>}
 
         <button className="p-2 bg-blue-500 text-white">SUBMIT</button>
       </form>

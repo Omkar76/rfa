@@ -51,7 +51,7 @@ export const FormPreview: FC<FormProps> = ({ formID }) => {
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          if(fields.some((field) => field.value === "")) {
+          if (fields.some((field) => field.value === "")) {
             alert("Please fill all fields");
             return;
           }
@@ -135,26 +135,29 @@ export const FormPreview: FC<FormProps> = ({ formID }) => {
                   />
                 );
 
-                case "GENERIC":
-                  switch(field.meta.type) {
-                    case  "LOCATION":
-                      return (<LocationSelector onChange={(latlng:LatLngExpression) => {
-                        setFields(
-                          fields.map((f) => {
-                            if (f.id === field.id) {
-                              return {
-                                ...f,
-                                value: latlng.toString(),
-                              };
-                            }
-                            return f;
-                          }),
-                        );
-                      }}/>
-                    )
-                    default:
-                      return <h1>Invalid generic field</h1>
-                  }
+              case "GENERIC":
+                switch (field.meta.type) {
+                  case "LOCATION":
+                    return (
+                      <LocationSelector
+                        onChange={(latlng: LatLngExpression) => {
+                          setFields(
+                            fields.map((f) => {
+                              if (f.id === field.id) {
+                                return {
+                                  ...f,
+                                  value: latlng.toString(),
+                                };
+                              }
+                              return f;
+                            }),
+                          );
+                        }}
+                      />
+                    );
+                  default:
+                    return <h1>Invalid generic field</h1>;
+                }
               default:
                 return <h1>Invalid form element</h1>;
             }
@@ -162,15 +165,13 @@ export const FormPreview: FC<FormProps> = ({ formID }) => {
         </Carousel>
 
         {current === fields.length - 1 && (
-        <input
-          type="submit"
-          value="Submit"
-          className="mx-auto block bg-blue-600 p-2 text-white rounded"
-        />
-
-      )}
+          <input
+            type="submit"
+            value="Submit"
+            className="mx-auto block bg-blue-600 p-2 text-white rounded"
+          />
+        )}
         <button></button>
-
       </form>
     </div>
   );

@@ -2,7 +2,6 @@ import { FormData } from "../types/forms";
 
 const LOCAL_FORMS_KEY = "LOCAL_FORMS_KEY_V1";
 
-
 export function getLocalForms(): FormData[] {
   const savedFormsJSON = localStorage.getItem(LOCAL_FORMS_KEY);
   return savedFormsJSON ? JSON.parse(savedFormsJSON) : [];

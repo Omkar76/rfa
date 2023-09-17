@@ -27,7 +27,7 @@ export type TextFieldData = {
   value: string;
   meta: {
     type: string;
-  }
+  };
 };
 
 export type MultiSelectFieldData = {
@@ -47,13 +47,13 @@ export type RadioFieldData = {
 };
 
 export type LocationFieldData = {
-  kind :"GENERIC",
+  kind: "GENERIC";
   id: number;
   label: string;
   value: string;
   meta: {
     type: string;
-  }
+  };
 };
 export type FormFieldData =
   | TextFieldData

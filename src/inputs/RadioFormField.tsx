@@ -42,7 +42,6 @@ export const RadioField: FC<RadioFieldProps> = ({
               {options.length === 0 && (
                 <span className="text-red-600">Error: No options</span>
               )}
-
             </p>
             {options.map((option, index) => {
               return (

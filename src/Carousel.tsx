@@ -18,9 +18,9 @@ const reducer = (state: number, action: CarouselAction) => {
   }
 };
 
-export const Carousel:FC<CarouselProps> = ({ children, setCurrent }) => {
+export const Carousel: FC<CarouselProps> = ({ children, setCurrent }) => {
   const [current, dispatch] = useReducer(reducer, 0);
-  
+
   useEffect(() => {
     setCurrent(current);
   }, [current]);
@@ -46,17 +46,17 @@ export const Carousel:FC<CarouselProps> = ({ children, setCurrent }) => {
           />
         </svg>
 
-        <div className="m-10 transition-all duration-1000 ease-in-out">{
-        children.map((child, index) => {
-          return (
-            <div
-              key={index}
-              style={{ display: index === current ? "block" : "none" }}
-            >
-              {child}
-            </div>
-          );
-      })}
+        <div className="m-10 transition-all duration-1000 ease-in-out">
+          {children.map((child, index) => {
+            return (
+              <div
+                key={index}
+                style={{ display: index === current ? "block" : "none" }}
+              >
+                {child}
+              </div>
+            );
+          })}
         </div>
 
         <svg
@@ -79,7 +79,6 @@ export const Carousel:FC<CarouselProps> = ({ children, setCurrent }) => {
           />
         </svg>
       </div>
-      
     </div>
   );
 };
