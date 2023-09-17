@@ -53,6 +53,7 @@ export const PreviewMultiSelect: FC<MultiSelectFieldPreviewProps> = ({
           return (
             <label key={index}>
               <input
+                required
                 name={field.id.toString()}
                 onChange={(e) =>
                   e.target.checked ? addAnswer(option) : deleteAnswer(option)

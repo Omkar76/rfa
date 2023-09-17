@@ -22,6 +22,7 @@ export const FormPreview: FC<FormProps> = ({ formID }) => {
   });
 
   const [fields, setFields] = useState<FormFieldData[]>([]);
+  const [current, setCurrent] = useState(0);
 
   useEffect(() => {
     user &&
@@ -48,6 +49,11 @@ export const FormPreview: FC<FormProps> = ({ formID }) => {
       <form
         onSubmit={(e) => {
           e.preventDefault();
+          if(fields.some((field) => field.value === "")) {
+            alert("Please fill all fields");
+            return;
+          }
+
           createSubmission(
             form,
             fields.map((field) => {
@@ -60,7 +66,7 @@ export const FormPreview: FC<FormProps> = ({ formID }) => {
         }}
       >
         <h2 className="text-2xl text-center underline">{form.title}</h2>
-        <Carousel>
+        <Carousel setCurrent={setCurrent}>
           {fields.map((field) => {
             switch (field.kind) {
               case "TEXT":
@@ -131,6 +137,14 @@ export const FormPreview: FC<FormProps> = ({ formID }) => {
             }
           })}
         </Carousel>
+
+        {current === fields.length - 1 && (
+        <input
+          type="submit"
+          value="Submit"
+          className="mx-auto block bg-blue-600 p-2 text-white rounded"
+        />
+      )}
       </form>
     </div>
   );

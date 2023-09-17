@@ -38,6 +38,12 @@ export const RadioField: FC<RadioFieldProps> = ({
         <div className="flex items-stretch w-full border p-2">
           <div className="w-full">
             <span className="font-extrabold min-w-[300px]">Options:</span>
+            <p>
+              {options.length === 0 && (
+                <span className="text-red-600">Error: No options</span>
+              )}
+
+            </p>
             {options.map((option, index) => {
               return (
                 <div

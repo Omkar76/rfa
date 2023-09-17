@@ -19,7 +19,7 @@ export const PreviewTextField: FC<PreviewTextFieldProps> = ({
           required
           value={field.value}
           onChange={(e) => setAnswer(e.target.value)}
-          type={field.type}
+          type={field?.meta?.type}
           className="focus:border-blue-300 border-2 border-gray-300 p-2 w-full my-1 bg-slate-100 outline-none rounded-sm"
         />
       </label>

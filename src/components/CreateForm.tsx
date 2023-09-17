@@ -10,11 +10,12 @@ export const validateForm = (form: Form) => {
     errors.title = "Title is required";
   }
   if (form.title.length > 100) {
-    errors.title = "Title must be less than 100 charecters";
+    errors.title = "Title must be less than 100 characters";
   }
 
   return errors;
 };
+
 export default function CreateForm() {
   const [form, setForm] = useState<Form>({
     id: -1,
@@ -49,12 +50,18 @@ export default function CreateForm() {
           Title
           <input
             className="p-2 border"
+            id="title"
             name="title"
             value={form.title}
             onChange={(e) => setForm({ ...form, title: e.target.value })}
+            aria-describedby="title-error"
           />
         </label>
-        {errors.title && <p className="text-red-600">{errors.title}</p>}
+        {errors.title && (
+          <p id="title-error" className="text-red-600" aria-live="assertive">
+            {errors.title}
+          </p>
+        )}
 
         <label className="flex flex-col">
           Description
@@ -62,29 +69,31 @@ export default function CreateForm() {
             className="p-2 border"
             name="description"
             value={form.description}
-            onChange={(e) => setForm({ ...form, description: e.target.value })}
+            onChange={(e) =>
+              setForm({ ...form, description: e.target.value })
+            }
           />
         </label>
         {errors.description && (
           <p className="text-red-600">{errors.description}</p>
         )}
-        <label>
-          <label className="flex">
-            <input
-              className="p-2 border"
-              type="checkbox"
-              name="is_public"
-              checked={form.is_public}
-              onChange={(e) =>
-                setForm({ ...form, is_public: e.target.checked })
-              }
-            />
-            &nbsp;&nbsp;Public
-          </label>
-          {errors.is_public && (
-            <p className="text-red-600">{errors.is_public}</p>
-          )}
+
+        <label className="flex">
+          <input
+            className="p-2 border"
+            type="checkbox"
+            name="is_public"
+            checked={form.is_public}
+            onChange={(e) =>
+              setForm({ ...form, is_public: e.target.checked })
+            }
+          />
+          &nbsp;&nbsp;Public
         </label>
+        {errors.is_public && (
+          <p className="text-red-600">{errors.is_public}</p>
+        )}
+
         <button className="p-2 bg-blue-500 text-white">SUBMIT</button>
       </form>
     </div>

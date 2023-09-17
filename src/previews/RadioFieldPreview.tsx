@@ -20,6 +20,7 @@ export const PreviewRadio: FC<RadioFieldPreviewProps> = ({
           return (
             <label key={index}>
               <input
+                required
                 name={field.id.toString()}
                 onChange={(e) => e.target.checked && setAnswer(option)}
                 type="radio"

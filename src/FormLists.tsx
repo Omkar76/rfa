@@ -1,17 +1,18 @@
-import { FC, useEffect, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import { Link, useQueryParams } from "raviger";
 import Modal from "./components/commons/Modal";
 import CreateForm from "./components/CreateForm";
 import { Form } from "./types/forms";
 import { deleteForm, listForms } from "./utils/apiUtils";
 import { useUserContext } from "./context/userContext";
+
 interface FormListProps {}
 
 const fetchForms = (
   setFormsCB: (value: Form[]) => void,
   setCountCB: (count: number) => void,
   offset: number,
-  limit: number,
+  limit: number
 ) => {
   listForms({ offset: offset, limit: limit })
     .then((data) => {
@@ -22,6 +23,7 @@ const fetchForms = (
 };
 
 const limit = 5;
+
 export const FormList: FC<FormListProps> = () => {
   const [forms, setForms] = useState<Form[]>([]);
   const [{ search }, setQuery] = useQueryParams();
@@ -30,6 +32,7 @@ export const FormList: FC<FormListProps> = () => {
   const [offset, setOffset] = useState(0);
   const [count, setCount] = useState(0);
   const { user } = useUserContext();
+
   useEffect(() => {
     fetchForms(setForms, setCount, offset, limit);
   }, [offset, user]);
@@ -51,6 +54,7 @@ export const FormList: FC<FormListProps> = () => {
           placeholder="Search forms by title"
           className="p-2 border border-gray-400 outline-none m-3"
           onChange={(e) => setSearchTitle(e.target.value)}
+          aria-label="Search forms by title"
         />
       </form>
       <div className="flex justify-between w-full p-2">
@@ -60,35 +64,31 @@ export const FormList: FC<FormListProps> = () => {
             setNewForm(true);
           }}
           className="bg-blue-600 text-white rounded-md p-2 ml-auto"
+          aria-label="Create New Form"
         >
           New Form
         </button>
       </div>
       <p>
         {forms.length === 0 &&
-          'No saved forms found. Creare new forms by clicking "new form" button'}
+          'No saved forms found. Create new forms by clicking "New Form" button'}
       </p>
       <div className="flex gap-1 flex-col w-full">
         {forms
           .filter((form) => form.title.includes(search || ""))
           .map((f) => {
             return (
-              <div
-                key={f.id}
-                className="flex gap-2 border border-blue-400 p-2 "
-              >
+              <div key={f.id} className="flex gap-2 border border-blue-400 p-2">
                 <span className="flex-1">{f.title || "-"}</span>
 
-                <Link href={"/forms/preview/" + f.id}>
+                <Link href={"/forms/preview/" + f.id} aria-label={`Preview Form ${f.title}`}>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
                     strokeWidth={1.5}
                     stroke="currentColor"
-                    className={
-                      "w-6 h-6 " + (user ? "text-blue-500" : "text-gray-400")
-                    }
+                    className={"w-6 h-6 " + (user ? "text-blue-500" : "text-gray-400")}
                   >
                     <title>Preview Form</title>
                     <path
@@ -103,14 +103,13 @@ export const FormList: FC<FormListProps> = () => {
                     />
                   </svg>
                 </Link>
-                <Link href={"/forms/" + f.id}>
+
+                <Link href={"/forms/" + f.id} aria-label={`Open Form ${f.title}`}>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
                     fill="currentColor"
-                    className={
-                      "w-6 h-6 " + (user ? "text-blue-500" : "text-gray-400")
-                    }
+                    className={"w-6 h-6 " + (user ? "text-blue-500" : "text-gray-400")}
                   >
                     <title>Open Form</title>
                     <path d="M21.731 2.269a2.625 2.625 0 00-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 000-3.712zM19.513 8.199l-3.712-3.712-8.4 8.4a5.25 5.25 0 00-1.32 2.214l-.8 2.685a.75.75 0 00.933.933l2.685-.8a5.25 5.25 0 002.214-1.32l8.4-8.4z" />
@@ -147,14 +146,13 @@ export const FormList: FC<FormListProps> = () => {
                       setForms(forms.filter((form) => form.id !== f.id));
                     });
                   }}
+                  aria-label={`Delete Form ${f.title}`}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
                     fill="currentColor"
-                    className={
-                      "w-6 h-6 " + (user ? "text-red-500" : "text-gray-400")
-                    }
+                    className={"w-6 h-6 " + (user ? "text-red-500" : "text-gray-400")}
                   >
                     <title>Delete Form</title>
                     <path
@@ -176,6 +174,7 @@ export const FormList: FC<FormListProps> = () => {
                 setOffset(offset - limit);
               }}
               className="bg-blue-600 text-white font-bold p-2 rounded-lg"
+              aria-label="Previous Page"
             >
               Previous
             </button>
@@ -188,6 +187,7 @@ export const FormList: FC<FormListProps> = () => {
               setOffset(offset + limit);
             }}
             className="bg-blue-600 text-white font-bold p-2 rounded-lg"
+            aria-label="Next Page"
           >
             <p className="font-semibold">Next</p>
           </button>

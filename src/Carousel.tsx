@@ -1,7 +1,8 @@
-import { FC, useReducer } from "react";
+import { FC, useEffect, useReducer } from "react";
 
 interface CarouselProps {
   children: React.ReactNode[];
+  setCurrent: (current: number) => void;
 }
 
 type CarouselAction = "next" | "previous";
@@ -17,8 +18,13 @@ const reducer = (state: number, action: CarouselAction) => {
   }
 };
 
-export const Carousel: FC<CarouselProps> = ({ children }) => {
+export const Carousel:FC<CarouselProps> = ({ children, setCurrent }) => {
   const [current, dispatch] = useReducer(reducer, 0);
+  
+  useEffect(() => {
+    setCurrent(current);
+  }, [current]);
+
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -62,13 +68,7 @@ export const Carousel: FC<CarouselProps> = ({ children }) => {
           />
         </svg>
       </div>
-      {current === children.length - 1 && (
-        <input
-          type="submit"
-          value="Submit"
-          className="mx-auto block bg-blue-600 p-2 text-white rounded"
-        />
-      )}
+      
     </div>
   );
 };

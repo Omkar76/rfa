@@ -1,14 +1,14 @@
 export const HTMLInputTypeAttributeValues = [
   "TEXT",
-  // "password",
-  // "email",
-  // "number",
-  // "date",
-  // "time",
-  // "color",
-  // "range",
+  "password",
+  "email",
+  "number",
+  "date",
+  "time",
+  "color",
+  "range",
   // "search",
-  // "tel",
+  "tel",
   // "url",
   "RADIO",
   "DROPDOWN",
@@ -24,8 +24,10 @@ export type TextFieldData = {
   kind: "TEXT";
   id: number;
   label: string;
-  type?: string;
   value: string;
+  meta: {
+    type: string;
+  }
 };
 
 export type MultiSelectFieldData = {
