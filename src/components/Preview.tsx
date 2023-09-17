@@ -133,7 +133,7 @@ export const FormPreview: FC<FormProps> = ({ formID }) => {
                   />
                 );
               default:
-                return <h1>Invalid form element</h1>;
+                return null;
             }
           })}
         </Carousel>
