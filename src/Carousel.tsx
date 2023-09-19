@@ -23,7 +23,7 @@ export const Carousel: FC<CarouselProps> = ({ children, setCurrent }) => {
 
   useEffect(() => {
     setCurrent(current);
-  }, [current]);
+  }, [current,setCurrent]);
 
   return (
     <div>
