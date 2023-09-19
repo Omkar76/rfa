@@ -239,7 +239,7 @@ const reducer = (state: FormData, action: FormAction): FormData => {
   }
 };
 
-export default function ShareForm({ formID }: { formID: number }) {
+function ShareForm({ formID }: { formID: number }) {
   const [copied, setCopied] = useState(false);
 
   const onCopy = () => {
@@ -463,3 +463,5 @@ export const Form: FC<FormProps> = ({ formID }) => {
     </div>
   );
 };
+
+export default Form;
