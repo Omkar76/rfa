@@ -238,6 +238,7 @@ const reducer = (state: FormData, action: FormAction): FormData => {
       return state;
   }
 };
+
 export default function ShareForm({ formID }: { formID: number }) {
   const [copied, setCopied] = useState(false);
 

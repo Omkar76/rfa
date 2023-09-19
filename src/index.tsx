@@ -12,7 +12,10 @@ if (process.env.REACT_APP_SENTRY_DSN) {
     integrations: [
       new Sentry.BrowserTracing({
         // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
-        tracePropagationTargets: ["localhost", /^https:\/\/yourserver\.io\/api/],
+        tracePropagationTargets: [
+          "localhost",
+          /^https:\/\/yourserver\.io\/api/,
+        ],
       }),
       new Sentry.Replay(),
     ],

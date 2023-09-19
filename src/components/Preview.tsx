@@ -177,3 +177,5 @@ export const FormPreview: FC<FormProps> = ({ formID }) => {
     </div>
   );
 };
+
+export default FormPreview;

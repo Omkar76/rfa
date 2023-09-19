@@ -1,23 +1,40 @@
 import { useRoutes } from "raviger";
-import { Home } from "./components/Home";
-import { Form } from "./components/Form";
 import About from "./components/About";
-import { FormPreview } from "./components/Preview";
 import ErrorPage from "./components/Error";
-import Login from "./components/Login";
-import Submissions from "./components/Submissions";
-import SubmissionDetails from "./components/SubmissionDetails";
+import { Suspense, lazy } from "react";
+
+const Home = lazy(() => import("./components/Home"));
+const Login = lazy(() => import("./components/Login"));
+const Submissions = lazy(() => import("./components/Submissions"));
+const SubmissionDetails = lazy(() => import("./components/SubmissionDetails"));
+const suspenseFallback = <div>Loading...</div>;
+const FormPreview = lazy(() => import("./components/Preview"));
+const Form = lazy(() => import("./components/Form"));
 
 const routes = {
-  "/": () => <Home />,
-  "/login": () => <Login />,
+  "/": () => (
+    <Suspense fallback={suspenseFallback}>      
+      <Home />
+    </Suspense>
+  ),
+  "/login": () => (
+    <Suspense fallback={suspenseFallback}>
+      <Login />
+    </Suspense>
+  ),
   "/about": () => <About />,
-  "/forms/:id": ({ id }: { id: string }) => <Form formID={+id} />,
+  "/forms/:id": ({ id }: { id: string }) => (
+    <Suspense fallback={suspenseFallback}>
+      <Form formID={+id} />
+    </Suspense>
+  ),
   "/forms/preview/:id": ({ id }: { id: string }) => (
     <FormPreview formID={+id} />
   ),
   "/forms/submissions/:id": ({ id }: { id: string }) => (
-    <Submissions formID={+id} />
+    <Suspense fallback={suspenseFallback}>
+      <Submissions formID={+id} />
+    </Suspense>
   ),
   "/forms/:id/submissions/:submissionId": ({
     id,
@@ -25,7 +42,11 @@ const routes = {
   }: {
     id: string;
     submissionId: string;
-  }) => <SubmissionDetails formId={+id} submissionId={+submissionId} />,
+  }) => (
+    <Suspense fallback={suspenseFallback}>
+      <SubmissionDetails formId={+id} submissionId={+submissionId} />
+    </Suspense>
+  ),
   "/*": () => <ErrorPage />,
 };
 
