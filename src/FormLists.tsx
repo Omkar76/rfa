@@ -5,8 +5,8 @@ import CreateForm from "./components/CreateForm";
 import { Form } from "./types/forms";
 import { deleteForm, listForms } from "./utils/apiUtils";
 import { useUserContext } from "./context/userContext";
-import {ArrowPathIcon} from "@heroicons/react/24/solid";
-interface FormListProps {}
+import { ArrowPathIcon } from "@heroicons/react/24/solid";
+interface FormListProps { }
 
 const fetchForms = (
   setFormsCB: (value: Form[]) => void,
@@ -58,12 +58,12 @@ export const FormList: FC<FormListProps> = () => {
         />
       </form>
       <div className="flex justify-between w-full p-2">
-        <h2 className="font-bold text-lg flex">Saved Forms 
-        <ArrowPathIcon className="w-6 h-6 ml-2 cursor-pointer" onClick={()=>{
-          fetchForms(setForms, setCount, offset, limit);
-        }
-        }/>
-
+        <h2 className="font-bold text-lg flex">Saved Forms
+          <button onClick={() => {
+            fetchForms(setForms, setCount, offset, limit);
+          }}>
+            <ArrowPathIcon className="w-6 h-6 ml-2 cursor-pointer"/>
+          </button>
         </h2>
         <button
           onClick={() => {
@@ -160,7 +160,7 @@ export const FormList: FC<FormListProps> = () => {
                   onClick={() => {
                     deleteForm(f.id).then(() => {
                       setForms(forms.filter((form) => form.id !== f.id));
-                      setCount(count=>count-1);
+                      setCount(count => count - 1);
                       fetchForms(setForms, setCount, offset, limit);
                     });
                   }}
@@ -201,7 +201,7 @@ export const FormList: FC<FormListProps> = () => {
           }
           <button
             style={{
-              visibility:  count > offset + limit ? "initial" : "hidden",
+              visibility: count > offset + limit ? "initial" : "hidden",
             }}
             onClick={() => {
               setOffset(offset + limit);
