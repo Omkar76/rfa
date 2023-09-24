@@ -29,7 +29,9 @@ const routes = {
     </Suspense>
   ),
   "/forms/preview/:id": ({ id }: { id: string }) => (
-    <FormPreview formID={+id} />
+    <Suspense fallback={suspenseFallback}>
+      <FormPreview formID={+id} />
+    </Suspense>
   ),
   "/forms/submissions/:id": ({ id }: { id: string }) => (
     <Suspense fallback={suspenseFallback}>
