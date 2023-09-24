@@ -5,7 +5,7 @@ import CreateForm from "./components/CreateForm";
 import { Form } from "./types/forms";
 import { deleteForm, listForms } from "./utils/apiUtils";
 import { useUserContext } from "./context/userContext";
-
+import {ArrowPathIcon} from "@heroicons/react/24/solid";
 interface FormListProps {}
 
 const fetchForms = (
@@ -58,7 +58,13 @@ export const FormList: FC<FormListProps> = () => {
         />
       </form>
       <div className="flex justify-between w-full p-2">
-        <h2 className="font-bold text-lg">Saved Forms</h2>
+        <h2 className="font-bold text-lg flex">Saved Forms 
+        <ArrowPathIcon className="w-6 h-6 ml-2 cursor-pointer" onClick={()=>{
+          fetchForms(setForms, setCount, offset, limit);
+        }
+        }/>
+
+        </h2>
         <button
           onClick={() => {
             setNewForm(true);
@@ -154,6 +160,8 @@ export const FormList: FC<FormListProps> = () => {
                   onClick={() => {
                     deleteForm(f.id).then(() => {
                       setForms(forms.filter((form) => form.id !== f.id));
+                      setCount(count=>count-1);
+                      fetchForms(setForms, setCount, offset, limit);
                     });
                   }}
                   aria-label={`Delete Form ${f.title}`}
@@ -193,7 +201,7 @@ export const FormList: FC<FormListProps> = () => {
           }
           <button
             style={{
-              visibility: offset + limit > count ? "hidden" : "initial",
+              visibility:  count > offset + limit ? "initial" : "hidden",
             }}
             onClick={() => {
               setOffset(offset + limit);
