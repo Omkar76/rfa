@@ -22,7 +22,7 @@ const fetchForms = (
     .catch((error) => console.log(error));
 };
 
-const limit = 5;
+const limit = 10;
 
 export const FormList: FC<FormListProps> = () => {
   const [forms, setForms] = useState<Form[]>([]);
