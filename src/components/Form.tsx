@@ -1,4 +1,4 @@
-import { FC, useEffect, useReducer, useRef, useState } from "react";
+import { FC, useEffect, useReducer, useCallback, useRef, useState } from "react";
 import { FormField } from "../inputs/FormField";
 import { Link } from "raviger";
 import { saveFormData } from "../utils/forms";
@@ -14,6 +14,7 @@ import {
   deleteField,
   getFields,
   getForm,
+  updateForm,
   updateOptions,
 } from "../utils/apiUtils";
 import { useRequireAuth } from "../hooks/useRequireAuth";
@@ -314,6 +315,23 @@ export const Form: FC<FormProps> = ({ formID }) => {
       });
   }, [formID, user]);
 
+  // currently only need to save title.
+  const saveFormData = useCallback(()=>{
+    updateForm(formData.id, {title: formData.title}).then(() => {
+      console.log("updated");
+    });
+  },[formData.id, formData.title])
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      saveFormData();
+    }, 1000);
+
+    return () => {
+      clearTimeout(timeout);
+    }
+  },[saveFormData]);
+
   const renderField = (field: FormFieldData) => {
     switch (field.kind) {
       case "DROPDOWN":
@@ -448,7 +466,7 @@ export const Form: FC<FormProps> = ({ formID }) => {
             className="p-2 bg-blue-500 hover:bg-blue-60 text-white rounded-md"
             onClick={(e) => {
               e.preventDefault();
-              saveFormData(formData);
+              saveFormData();
             }}
           >
             Save
