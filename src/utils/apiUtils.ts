@@ -80,8 +80,8 @@ export const getFields = async (
   )) as Pagination<FormFieldData>;
 };
 
-export const updateForm = (form: Partial<Form>) => {
-  return request(`/forms/${form.id}/`, "PATCH", form);
+export const updateForm = (id:number, form: Partial<Form>) => {
+  return request(`/forms/${id}/`, "PATCH", form);
 };
 
 export const createField = (
